@@ -13,9 +13,10 @@ db.sequelize.sync()
 
 
 var predmeti = require('./Routes/predmeti.js');
-
+var ag = require('./Routes/akademskegodine.js');
 
 app.use('/predmeti', predmeti);
+app.use('/akademskegodine', ag);
 
 
 
