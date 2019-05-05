@@ -16,4 +16,21 @@ router.get('/', function (req, res, next) {
         }));
 });
 
+router.get('/trenutna', function (req, res, next) {
+
+    db.AkademskaGodina.findOne({
+        where: {
+            aktuelna: 1
+        }
+    }).then(trenutna => res.json({
+        error: false,
+        data: trenutna
+    }))
+        .catch(error => res.json({
+            error: true,
+            data: [],
+            error: error
+        }));
+});
+
 module.exports = router;
