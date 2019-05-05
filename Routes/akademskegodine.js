@@ -3,6 +3,9 @@ var express = require('express');
 var router = express.Router();
 const db = require('../db.js');
 
+
+//Lista svih akademskih godina u bazi
+
 router.get('/', function (req, res, next) {
 
     db.AkademskaGodina.findAll().then(godine => res.json({
@@ -15,6 +18,9 @@ router.get('/', function (req, res, next) {
             error: error
         }));
 });
+
+
+//Trenutna akademska godina
 
 router.get('/trenutna', function (req, res, next) {
 

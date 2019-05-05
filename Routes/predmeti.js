@@ -14,9 +14,9 @@ router.get('/:idStudent', function (req, res, next) {
         where: {
             idStudent: student_id
         }
-    }).then(todos => res.json({
+    }).then(predmeti => res.json({
         error: false,
-        data: todos
+        data: predmeti
     }))
         .catch(error => res.json({
             error: true,
