@@ -12,9 +12,12 @@ db.sequelize.sync()
     .catch((err) => console.log("Modul Stdudent nije konektovan! GRESKA:", err));
 
 
+//Importovanje dostupnih ruta
 var predmeti = require('./Routes/predmeti.js');
 var ag = require('./Routes/akademskegodine.js');
 
+
+//Definisanje koristenja dostupnih ruta
 app.use('/predmeti', predmeti);
 app.use('/akademskegodine', ag);
 
