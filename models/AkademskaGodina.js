@@ -14,6 +14,22 @@ module.exports = function(sequelize, DataTypes) {
     aktuelna: {
       type: DataTypes.INTEGER(1),
       allowNull: false
+    },
+    pocetak_zimskog_semestra: {
+      type: DataTypes.DATEONLY,
+      allowNull: false
+    },
+    kraj_zimskog_semestra: {
+      type: DataTypes.DATEONLY,
+      allowNull: false
+    },
+    pocetak_ljetnog_semestra: {
+      type: DataTypes.DATEONLY,
+      allowNull: false
+    },
+    kraj_ljetnog_semestra: {
+      type: DataTypes.DATEONLY,
+      allowNull: false
     }
   }, {
     tableName: 'AkademskaGodina'

@@ -2,6 +2,11 @@
 
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('odsjek_predmet', {
+    id: {
+      type: DataTypes.INTEGER(11),
+      allowNull: false,
+      primaryKey: true
+    },
     idOdsjek: {
       type: DataTypes.INTEGER(10),
       allowNull: false,
@@ -19,16 +24,16 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     semestar: {
-      type: DataTypes.STRING(50),
-      allowNull: true
+      type: DataTypes.ENUM('1','2'),
+      allowNull: false
     },
-    ciklus: {
-      type: DataTypes.INTEGER(2),
-      allowNull: true
+    godina: {
+      type: DataTypes.ENUM('1','2','3','4','5','6','7','8'),
+      allowNull: false
     },
-    tip: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
+    obavezan: {
+      type: DataTypes.INTEGER(1),
+      allowNull: false
     }
   }, {
     tableName: 'odsjek_predmet'
