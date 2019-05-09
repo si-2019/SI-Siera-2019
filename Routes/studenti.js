@@ -186,5 +186,42 @@ router.put('/update/tel/:idStudent', (req, res) => {
 
 });
 
+router.put('/update/mail/:idStudent', (req, res) => {
+
+    var student_id = req.params.idStudent;
+
+    db.Korisnik.findAll({
+        where: {
+            id: student_id
+        },
+        attributes: ['id']
+    }).then(student => {
+
+        if (student.length == 0) {
+            return res.status(404).send({
+                success: 'false',
+                message: 'Korisnik not found'
+            });
+        }
+
+        if (!req.body.mail) {
+            return res.status(400).send({
+                success: 'false',
+                message: 'mail is required',
+            });
+        }
+        else {
+            var mail = req.body.mail;
+
+            db.sequelize.query("UPDATE Korisnik SET email='" + mail + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                success: 'true',
+                message: 'Korisnik updated successfully'
+            }))
+        }
+
+    })
+
+});
+
 module.exports = router;
 
