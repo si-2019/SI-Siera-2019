@@ -10,19 +10,20 @@ router.use(bodyParser.urlencoded({ extended: true }));
 // Vracanje podataka za korisnika sa id-om idStudent
 router.get('/:idStudent', function (req, res) {
 
-        var stringic = [];
-        var objekat;
-        db.Korisnik.findAll({
-            where: {id : req.params.idStudent}
-        }).then(function(z){
+    var stringic = [];
+    var objekat;
+    db.Korisnik.findAll({
+        where: { id: req.params.idStudent }
+    }).then(function (z) {
 
         // Kreiranje objekta student sa potrebnim informacijama
         z.forEach(student => {
-            objekat = { id: student.id, ime: student.ime, prezime: student.prezime, adresa: student.adresa, ciklus: student.ciklus, datumRodjenja: student.datumRodjenja, drzavljanstvo: student.drzavljanstvo,
-            email: student.email, fotografija: student.fotografija, imePrezimeMajke: student.imePrezimeMajke, imePrezimeOca: student.imePrezimeOca, indeks: student.indeks, jmbg: student.jmbg,
-            kanton: student.kanton, linkedin: student.linkedin, mjestoRodjenja: student.mjestoRodjenja, password: student.password, semestar: student.semestar, spol: student.spol,
-            telefon: student.telefon, titula:student.titula, username: student.username, website: student.website, idOdsjek: student.idOdsjek, idUloga: student.idUloga
-        };
+            objekat = {
+                id: student.id, ime: student.ime, prezime: student.prezime, adresa: student.adresa, ciklus: student.ciklus, datumRodjenja: student.datumRodjenja, drzavljanstvo: student.drzavljanstvo,
+                email: student.email, fotografija: student.fotografija, imePrezimeMajke: student.imePrezimeMajke, imePrezimeOca: student.imePrezimeOca, indeks: student.indeks, jmbg: student.jmbg,
+                kanton: student.kanton, linkedin: student.linkedin, mjestoRodjenja: student.mjestoRodjenja, password: student.password, semestar: student.semestar, spol: student.spol,
+                telefon: student.telefon, titula: student.titula, username: student.username, website: student.website, idOdsjek: student.idOdsjek, idUloga: student.idUloga
+            };
             stringic.push(objekat);
         });
         // slanje podataka u json-u
@@ -107,6 +108,45 @@ router.put('/update/drzavljanstvo/:idStudent', (req, res) => {
             }))
         }
     })
+});
+
+//PUT api za izmjenu adrese
+
+router.put('/update/adresa/:idStudent', (req, res) => {
+
+    var student_id = req.params.idStudent;
+
+    db.Korisnik.findAll({
+        where: {
+            id: student_id
+        },
+        attributes: ['id']
+    }).then(student => {
+
+        if (student.length == 0) {
+            return res.status(404).send({
+                success: 'false',
+                message: 'Korisnik not found'
+            });
+        }
+
+        if (!req.body.adresa) {
+            return res.status(400).send({
+                success: 'false',
+                message: 'adresa is required',
+            });
+        }
+        else {
+            var adresa = req.body.adresa;
+
+            db.sequelize.query("UPDATE Korisnik SET adresa='" + adresa + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                success: 'true',
+                message: 'Korisnik updated successfully'
+            }))
+        }
+
+    })
+
 });
 
 module.exports = router;
