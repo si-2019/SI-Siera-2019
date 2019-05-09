@@ -76,5 +76,38 @@ router.put('/update/imeprezime/:idStudent', (req, res) => {
     })
 });
 
+router.put('/update/drzavljanstvo/:idStudent', (req, res) => {
+
+    var student_id = req.params.idStudent;
+
+    db.Korisnik.findAll({
+        where: {
+            id: student_id
+        },
+        attributes: ['id']
+    }).then(student => {
+
+        if (student.length == 0) {
+            return res.status(404).send({
+                success: 'false',
+                message: 'Korisnik not found'
+            });
+        }
+        if (!req.body.drzavljanstvo) {
+            return res.status(400).send({
+                success: 'false',
+                message: 'drzavljanstvo is required',
+            });
+        }
+        else {
+            var drzavljanstvo = req.body.drzavljanstvo;
+            db.sequelize.query("UPDATE Korisnik SET drzavljanstvo='" + drzavljanstvo + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                success: 'true',
+                message: 'Korisnik updated successfully'
+            }))
+        }
+    })
+});
+
 module.exports = router;
 
