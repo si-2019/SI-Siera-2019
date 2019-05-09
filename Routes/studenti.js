@@ -33,3 +33,6 @@ router.get('/:idStudent', function (req, res) {
         error: error
     }));
 });
+
+module.exports = router;
+
