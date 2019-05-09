@@ -260,5 +260,42 @@ router.put('/update/linkedin/:idStudent', (req, res) => {
 
 });
 
+router.put('/update/website/:idStudent', (req, res) => {
+
+    var student_id = req.params.idStudent;
+
+    db.Korisnik.findAll({
+        where: {
+            id: student_id
+        },
+        attributes: ['id']
+    }).then(student => {
+
+        if (student.length == 0) {
+            return res.status(404).send({
+                success: 'false',
+                message: 'Korisnik not found'
+            });
+        }
+
+        if (!req.body.website) {
+            return res.status(400).send({
+                success: 'false',
+                message: 'website is required',
+            });
+        }
+        else {
+            var website = req.body.website;
+
+            db.sequelize.query("UPDATE Korisnik SET website='" + website + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                success: 'true',
+                message: 'Korisnik updated successfully'
+            }))
+        }
+
+    })
+
+});
+
 module.exports = router;
 
