@@ -116,6 +116,7 @@ router.put('/update/adresa/:idStudent', (req, res) => {
 
     var student_id = req.params.idStudent;
 
+    //Provjera da li korisnik sa datim IDem postoji
     db.Korisnik.findAll({
         where: {
             id: student_id
@@ -130,12 +131,15 @@ router.put('/update/adresa/:idStudent', (req, res) => {
             });
         }
 
+        //Provjera da li se u body-u nalaze odgovarajući parametri sa novim vrijednostima
         if (!req.body.adresa) {
             return res.status(400).send({
                 success: 'false',
                 message: 'adresa is required',
             });
         }
+
+        //Ako je sve uredu vrsi se izmjena
         else {
             var adresa = req.body.adresa;
 
@@ -148,6 +152,9 @@ router.put('/update/adresa/:idStudent', (req, res) => {
     })
 
 });
+
+
+//PUT api za izmjenu telefona
 
 router.put('/update/tel/:idStudent', (req, res) => {
 
@@ -186,6 +193,8 @@ router.put('/update/tel/:idStudent', (req, res) => {
 
 });
 
+//PUT api za izmjenu email adrese
+
 router.put('/update/mail/:idStudent', (req, res) => {
 
     var student_id = req.params.idStudent;
@@ -223,6 +232,8 @@ router.put('/update/mail/:idStudent', (req, res) => {
 
 });
 
+//PUT api za izmjenu linkedin linka
+
 router.put('/update/linkedin/:idStudent', (req, res) => {
 
     var student_id = req.params.idStudent;
@@ -259,6 +270,8 @@ router.put('/update/linkedin/:idStudent', (req, res) => {
     })
 
 });
+
+//PUT api za izmjenu website linka
 
 router.put('/update/website/:idStudent', (req, res) => {
 

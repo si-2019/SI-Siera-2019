@@ -37,7 +37,7 @@ router.get('/trenutni/:idStudent', function (req, res, next) {
 
     db.AkademskaGodina.findOne({
         where: {
-            aktuelna: 1
+            aktuelna: "1"
         },
         attributes: ['id']
     }).then(trenutna => {
@@ -62,7 +62,7 @@ router.get('/odslusani/:idStudent', function (req, res, next) {
 
     db.AkademskaGodina.findOne({
         where: {
-            aktuelna: 1
+            aktuelna: "1"
         },
         attributes: ['id']
     }).then(trenutna => {

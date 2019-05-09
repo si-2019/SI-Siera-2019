@@ -26,7 +26,7 @@ router.get('/trenutna', function (req, res, next) {
 
     db.AkademskaGodina.findOne({
         where: {
-            aktuelna: 1
+            aktuelna: "1"
         }
     }).then(trenutna => res.json({
         error: false,
