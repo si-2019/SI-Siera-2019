@@ -15,11 +15,13 @@ db.sequelize.sync()
 //Importovanje dostupnih ruta
 var predmeti = require('./Routes/predmeti.js');
 var ag = require('./Routes/akademskegodine.js');
+var studenti = require('./Routes/studenti.js');
 
 
 //Definisanje koristenja dostupnih ruta
 app.use('/predmeti', predmeti);
 app.use('/akademskegodine', ag);
+app.use('/studenti', studenti);
 
 
 
