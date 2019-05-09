@@ -1,89 +1,77 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('korisnik', {
-    id_korisnik: {
-      type: DataTypes.BIGINT,
+  return sequelize.define('Korisnik', {
+    id: {
+      type: DataTypes.INTEGER(10),
       allowNull: false,
       primaryKey: true
     },
-    adresa: {
+    idOdsjek: {
+      type: DataTypes.INTEGER(10),
+      allowNull: true,
+      references: {
+        model: 'Odsjek',
+        key: 'idodsjek'
+      }
+    },
+    idUloga: {
+      type: DataTypes.INTEGER(10),
+      allowNull: true,
+      references: {
+        model: 'Uloga',
+        key: 'iduloga'
+      }
+    },
+    ime: {
       type: DataTypes.STRING(50),
       allowNull: true
     },
-    ciklus: {
+    prezime: {
       type: DataTypes.STRING(50),
       allowNull: true
     },
-    datum_rodjenja: {
+    datumRodjenja: {
       type: DataTypes.DATEONLY,
       allowNull: true
     },
-    drzavljanstvo: {
-      type: DataTypes.STRING(50),
+    JMBG: {
+      type: DataTypes.STRING(13),
       allowNull: true
     },
     email: {
       type: DataTypes.STRING(50),
       allowNull: true
     },
-    fotografija: {
-      type: "LONGBLOB",
-      allowNull: true
-    },
-    ime: {
+    mjestoRodjenja: {
       type: DataTypes.STRING(50),
-      allowNull: false
-    },
-    ime_prezime_majke: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-    },
-    ime_prezime_oca: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-    },
-    indeks: {
-      type: DataTypes.STRING(50),
-      allowNull: true
-    },
-    jmbg: {
-      type: DataTypes.STRING(13),
       allowNull: true
     },
     kanton: {
       type: DataTypes.STRING(50),
       allowNull: true
     },
-    linkedin: {
+    drzavljanstvo: {
       type: DataTypes.STRING(50),
-      allowNull: true
-    },
-    mjesto_rodjenja: {
-      type: DataTypes.STRING(50),
-      allowNull: true
-    },
-    password: {
-      type: DataTypes.STRING(50),
-      allowNull: true
-    },
-    prezime: {
-      type: DataTypes.STRING(50),
-      allowNull: false
-    },
-    semestar: {
-      type: DataTypes.STRING(50),
-      allowNull: true
-    },
-    spol: {
-      type: DataTypes.INTEGER(1),
       allowNull: true
     },
     telefon: {
       type: DataTypes.STRING(50),
       allowNull: true
     },
-    titula: {
+    spol: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true
+    },
+    imePrezimeMajke: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    imePrezimeOca: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    adresa: {
       type: DataTypes.STRING(50),
       allowNull: true
     },
@@ -91,23 +79,33 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(50),
       allowNull: true
     },
+    password: {
+      type: DataTypes.STRING(50),
+      allowNull: true
+    },
+    linkedin: {
+      type: DataTypes.STRING(50),
+      allowNull: true
+    },
     website: {
       type: DataTypes.STRING(50),
       allowNull: true
     },
-    id_odsjek: {
-      type: DataTypes.BIGINT,
+    fotografija: {
+      type: "BLOB",
       allowNull: true
     },
-    id_uloga: {
-      type: DataTypes.BIGINT,
+    indeks: {
+      type: DataTypes.STRING(50),
       allowNull: true
-    }
-  }, {
-    tableName: 'korisnik'
-  });
-};
-  allowNull: true
+    },
+    ciklus: {
+      type: DataTypes.STRING(50),
+      allowNull: true
+    },
+    semestar: {
+      type: DataTypes.STRING(50),
+      allowNull: true
     },
     titula: {
       type: DataTypes.STRING(50),
