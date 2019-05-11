@@ -11,6 +11,12 @@ db.sequelize.sync()
     .then(() => console.log("Modul Student uspješno konektovan"))
     .catch((err) => console.log("Modul Stdudent nije konektovan! GRESKA:", err));
 
+//Setovanje header-a
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 //Importovanje dostupnih ruta
 var predmeti = require('./Routes/predmeti.js');
