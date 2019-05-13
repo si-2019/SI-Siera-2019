@@ -325,5 +325,33 @@ router.put('/update/website/:idStudent', (req, res) => {
 
 });
 
+//Koristimo multer za spremanje lokalno slike koja se upload-a za izmjenu
+
+//Odabir foldera i imena za spremanje
+//Ime moze biti uvijek isto jer lokalnu kopiju koristimo samo za kodiranje i spremanje u bazu
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads/');
+    },
+    filename: function (req, file, cb) {
+
+        cb(null, 'novaSlika');
+    }
+})
+const upload = multer({
+    storage: storage,
+
+    //Ogranicavamo fajl da se moze uploadovati samo png ili jpeg
+    //Takodjer postavljamo limit na maxSize koji je u bazi
+    limits: 1024 * 60,
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype !== 'image/png' || file.mimetype !== 'image/jpeg') {
+            req.fileValidationError = 'goes wrong on the mimetype';
+            return cb(null, false, new Error('goes wrong on the mimetype'));
+        }
+        cb(null, true);
+    }
+})
+
 module.exports = router;
 
