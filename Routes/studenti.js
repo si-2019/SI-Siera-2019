@@ -329,6 +329,7 @@ router.put('/update/website/:idStudent', (req, res) => {
 
 //Odabir foldera i imena za spremanje
 //Ime moze biti uvijek isto jer lokalnu kopiju koristimo samo za kodiranje i spremanje u bazu
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, './uploads/');
@@ -338,20 +339,55 @@ const storage = multer.diskStorage({
         cb(null, 'novaSlika');
     }
 })
+
+//Dodavanje ograncicenja na velicinu i tip
 const upload = multer({
     storage: storage,
-
-    //Ogranicavamo fajl da se moze uploadovati samo png ili jpeg
-    //Takodjer postavljamo limit na maxSize koji je u bazi
-    limits: 1024 * 60,
+    limits: {
+        fileSize: 1024 * 60
+    },
     fileFilter: function (req, file, cb) {
-        if (file.mimetype !== 'image/png' || file.mimetype !== 'image/jpeg') {
-            req.fileValidationError = 'goes wrong on the mimetype';
-            return cb(null, false, new Error('goes wrong on the mimetype'));
+        if (file.mimetype === 'image/png' || file.mimetype === 'image/jpeg') {
+            cb(null, true);
         }
-        cb(null, true);
+        else {
+            cb('wrong mimetype', false);
+        }
     }
 })
+
+router.put('/update/foto/:idStudent', upload.single('foto'), (req, res) => {
+
+
+    var student_id = req.params.idStudent;
+
+    db.Korisnik.findAll({
+        where: {
+            id: student_id
+        },
+        attributes: ['id']
+    }).then(student => {
+
+        if (student.length == 0) {
+            return res.status(404).send({
+                success: 'false',
+                message: 'Korisnik not found'
+            });
+        }
+        else {
+
+            //Cita spremljenu sliku i konvertuje je tako da bude pogodna za snimanje u bazu kao blob objekat
+            var data = fs.readFileSync('uploads/novaSlika');
+            var foto = data.toString('base64');
+
+            //Konacan upit na bazu koji mijenja sliku
+            db.sequelize.query("UPDATE Korisnik SET fotografija='" + foto + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                success: 'true',
+                message: 'Korisnik updated successfully'
+            }))
+        }
+    })
+});
 
 module.exports = router;
 
