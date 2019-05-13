@@ -18,11 +18,24 @@ router.get('/:idStudent', function (req, res) {
         where: { id: req.params.idStudent }
     }).then(function (z) {
 
+        //Pretvaranje blob objekta u sliku i kreiranje url-a iskoristivog za backend
+        const blob = z[0].fotografija;
+
+        try {
+            var buffer = Buffer.from(blob);
+            var bufferBase64 = buffer.toString('base64');
+            var url = "data:image/png;base64," + buffer;
+        }
+        catch (error) {
+            console.log(error);
+            throw error;
+        }
+
         // Kreiranje objekta student sa potrebnim informacijama
         z.forEach(student => {
             objekat = {
                 id: student.id, ime: student.ime, prezime: student.prezime, adresa: student.adresa, ciklus: student.ciklus, datumRodjenja: student.datumRodjenja, drzavljanstvo: student.drzavljanstvo,
-                email: student.email, fotografija: student.fotografija, imePrezimeMajke: student.imePrezimeMajke, imePrezimeOca: student.imePrezimeOca, indeks: student.indeks, jmbg: student.jmbg,
+                email: student.email, fotografija: url, imePrezimeMajke: student.imePrezimeMajke, imePrezimeOca: student.imePrezimeOca, indeks: student.indeks, jmbg: student.jmbg,
                 kanton: student.kanton, linkedin: student.linkedin, mjestoRodjenja: student.mjestoRodjenja, password: student.password, semestar: student.semestar, spol: student.spol,
                 telefon: student.telefon, titula: student.titula, username: student.username, website: student.website, idOdsjek: student.idOdsjek, idUloga: student.idUloga
             };
