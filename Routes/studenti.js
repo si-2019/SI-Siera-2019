@@ -3,6 +3,8 @@ var express = require('express');
 var router = express.Router();
 const db = require('../db.js');
 const bodyParser = require('body-parser');
+const fs = require('fs');
+const multer = require('multer');
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -16,11 +18,24 @@ router.get('/:idStudent', function (req, res) {
         where: { id: req.params.idStudent }
     }).then(function (z) {
 
+        //Pretvaranje blob objekta u sliku i kreiranje url-a iskoristivog za backend
+        const blob = z[0].fotografija;
+
+        try {
+            var buffer = Buffer.from(blob);
+            var bufferBase64 = buffer.toString('base64');
+            var url = "data:image/png;base64," + buffer;
+        }
+        catch (error) {
+            console.log(error);
+            throw error;
+        }
+
         // Kreiranje objekta student sa potrebnim informacijama
         z.forEach(student => {
             objekat = {
                 id: student.id, ime: student.ime, prezime: student.prezime, adresa: student.adresa, ciklus: student.ciklus, datumRodjenja: student.datumRodjenja, drzavljanstvo: student.drzavljanstvo,
-                email: student.email, fotografija: student.fotografija, imePrezimeMajke: student.imePrezimeMajke, imePrezimeOca: student.imePrezimeOca, indeks: student.indeks, jmbg: student.jmbg,
+                email: student.email, fotografija: url, imePrezimeMajke: student.imePrezimeMajke, imePrezimeOca: student.imePrezimeOca, indeks: student.indeks, jmbg: student.jmbg,
                 kanton: student.kanton, linkedin: student.linkedin, mjestoRodjenja: student.mjestoRodjenja, password: student.password, semestar: student.semestar, spol: student.spol,
                 telefon: student.telefon, titula: student.titula, username: student.username, website: student.website, idOdsjek: student.idOdsjek, idUloga: student.idUloga
             };
@@ -308,6 +323,70 @@ router.put('/update/website/:idStudent', (req, res) => {
 
     })
 
+});
+
+//Koristimo multer za spremanje lokalno slike koja se upload-a za izmjenu
+
+//Odabir foldera i imena za spremanje
+//Ime moze biti uvijek isto jer lokalnu kopiju koristimo samo za kodiranje i spremanje u bazu
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads/');
+    },
+    filename: function (req, file, cb) {
+
+        cb(null, 'novaSlika');
+    }
+})
+
+//Dodavanje ograncicenja na velicinu i tip
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 60
+    },
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype === 'image/png' || file.mimetype === 'image/jpeg') {
+            cb(null, true);
+        }
+        else {
+            cb('wrong mimetype', false);
+        }
+    }
+})
+
+router.put('/update/foto/:idStudent', upload.single('foto'), (req, res) => {
+
+
+    var student_id = req.params.idStudent;
+
+    db.Korisnik.findAll({
+        where: {
+            id: student_id
+        },
+        attributes: ['id']
+    }).then(student => {
+
+        if (student.length == 0) {
+            return res.status(404).send({
+                success: 'false',
+                message: 'Korisnik not found'
+            });
+        }
+        else {
+
+            //Cita spremljenu sliku i konvertuje je tako da bude pogodna za snimanje u bazu kao blob objekat
+            var data = fs.readFileSync('uploads/novaSlika');
+            var foto = data.toString('base64');
+
+            //Konacan upit na bazu koji mijenja sliku
+            db.sequelize.query("UPDATE Korisnik SET fotografija='" + foto + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                success: 'true',
+                message: 'Korisnik updated successfully'
+            }))
+        }
+    })
 });
 
 module.exports = router;
