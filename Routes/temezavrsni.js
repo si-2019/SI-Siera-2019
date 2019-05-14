@@ -46,6 +46,24 @@ router.post('/:idStudent/:idTema', (req, res) => {
                         message: 'Parameter idTema not found'
                     });
                 }
+                else {
+
+                    //Dodavanje zahtjeva u bazu uz provjeru da se ne doda duplikat
+
+                    db.ZahtjeviZavrsni.findOrCreate({
+                        where: {
+                            idTema: tema_id,
+                            idStudent: student_id,
+                            idProfesor: result.idProfesora
+                        }
+                    }).then(([zahtjev, created]) => {
+                        return res.status(201).send({
+                            success: 'true',
+                            message: 'zahtjev added successfully',
+                            zahtjev
+                        })
+                    })
+                }
 
             })
         }
