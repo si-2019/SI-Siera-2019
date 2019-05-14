@@ -107,6 +107,13 @@ router.get('/:idOdsjek/:godina/:semestar', function (req, res, next) {
                 message: 'Semestar must be 1 for zimski or 2 for ljetni'
             });
         }
+        else {
+            db.sequelize.query("SELECT Predmet.naziv, odsjek_predmet.obavezan FROM Predmet, odsjek_predmet WHERE Predmet.id=odsjek_predmet.idPredmet AND odsjek_predmet.idOdsjek=" + odsjek + " AND odsjek_predmet.godina=" + god
+                + " AND odsjek_predmet.semestar=" + sem).then(([results, metadata]) => res.status(200).send({
+                    success: true,
+                    dostupniPredmeti: results
+                }))
+        }
 
     })
 
