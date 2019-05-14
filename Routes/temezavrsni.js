@@ -15,7 +15,22 @@ router.post('/:idStudent/:idTema', (req, res) => {
 
     const student_id = req.params.idStudent;
     const tema_id = req.params.idTema;
-    res.send('radi');
+
+    //Provjerava da li je ID studenta ispravan
+    db.Korisnik.count({
+        where:
+        {
+            id: student_id
+        }
+    }).then(broj => {
+        if (broj == 0) {
+            return res.status(404).send({
+                success: 'false',
+                message: 'Parameter idStudent not found'
+            });
+        }
+
+    })
 
 
 });
