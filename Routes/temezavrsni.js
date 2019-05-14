@@ -29,6 +29,26 @@ router.post('/:idStudent/:idTema', (req, res) => {
                 message: 'Parameter idStudent not found'
             });
         }
+        else {
+            //Provjerava da li je ID Teme ispravan, i odmah kupi idProfesora
+            db.TemeZavrsnih.findOne({
+                where:
+                {
+                    id: tema_id
+                },
+                attributes: ['id', 'idProfesora']
+
+            }).then(result => {
+
+                if (!result) {
+                    return res.status(404).send({
+                        success: 'false',
+                        message: 'Parameter idTema not found'
+                    });
+                }
+
+            })
+        }
 
     })
 
