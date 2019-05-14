@@ -77,4 +77,39 @@ router.get('/odslusani/:idStudent', function (req, res, next) {
 
 });
 
+router.get('/:idOdsjek/:godina/:semestar', function (req, res, next) {
+
+    const odsjek = req.params.idOdsjek;
+    const god = req.params.godina;
+    const sem = req.params.semestar;
+
+    db.Odsjek.findAll({
+        where: {
+            idOdsjek: odsjek
+        }
+    }).then(result => {
+
+        if (!result[0]) {
+            return res.status(404).send({
+                success: 'false',
+                message: 'Odsjek not found- wrong id'
+            });
+        }
+        else if (god < 1 || god > 8) {
+            return res.status(400).send({
+                success: 'false',
+                message: 'Godina must be between 1 and 8'
+            });
+        }
+        else if (sem < 1 || sem > 2) {
+            return res.status(400).send({
+                success: 'false',
+                message: 'Semestar must be 1 for zimski or 2 for ljetni'
+            });
+        }
+
+    })
+
+});
+
 module.exports = router;
