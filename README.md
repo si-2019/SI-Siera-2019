@@ -6,7 +6,13 @@ RESTApi modul koji se koristi za upravljanje korisničkim interfejsom koji će b
 
 PORT: 31918
 
-Uraditi clone develop branch-a
+Za Sprint1 uraditi clone master branch-a
+
+```bash
+git clone https://github.com/si-2019/SI-Siera-Studenti.git
+```
+
+Za urađeno na trenutnom sprintu uraditi clone develop branch-a
 
 ```bash
 git clone https://github.com/si-2019/SI-Siera-Studenti.git -b "develop"
