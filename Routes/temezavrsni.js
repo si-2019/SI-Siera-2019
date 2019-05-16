@@ -73,4 +73,33 @@ router.post('/:idStudent/:idTema', (req, res) => {
 
 });
 
+router.get('/:idStudent', (req, res) => {
+
+    const student_id = req.params.idStudent;
+
+    //Provjerava da li je ID studenta ispravan
+    db.Korisnik.count({
+        where:
+        {
+            id: student_id
+        }
+    }).then(broj => {
+        if (broj == 0) {
+            return res.status(404).send({
+                success: 'false',
+                message: 'Parameter idStudent not found'
+            });
+        }
+        else {
+
+            db.sequelize.query("SELECT TemeZavrsnih.id, TemeZavrsnih.naziv, ZahtjeviZavrsni.odobreno FROM TemeZavrsnih, ZahtjeviZavrsni WHERE TemeZavrsnih.id=ZahtjeviZavrsni.idTema AND ZahtjeviZavrsni.idStudent=" + student_id).then(([results, metadata]) => res.status(200).send({
+                succeess: true,
+                teme: results
+            }))
+        }
+
+    })
+
+});
+
 module.exports = router;
