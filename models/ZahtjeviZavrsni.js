@@ -1,9 +1,10 @@
 /* jshint indent: 2 */
 
-module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('zahtjevi_zavrsni', {
+module.exports = function (sequelize, DataTypes) {
+  return sequelize.define('ZahtjeviZavrsni', {
     id: {
       type: DataTypes.INTEGER(11),
+      autoIncrement: true,
       allowNull: false,
       primaryKey: true
     },
@@ -11,7 +12,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(11),
       allowNull: false,
       references: {
-        model: 'teme_zavrsnih',
+        model: 'TemeZavrsnih',
         key: 'id'
       }
     },
@@ -32,10 +33,10 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     odobreno: {
-      type: DataTypes.INTEGER(1),
+      type: DataTypes.ENUM('0', '1'),
       allowNull: true
     }
   }, {
-    tableName: 'zahtjevi_zavrsni'
-  });
+      tableName: 'ZahtjeviZavrsni'
+    });
 };

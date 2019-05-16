@@ -19,7 +19,4 @@ db.predmet_student = sequelize.import(__dirname + '/models/predmet_student.js');
 db.AkademskaGodina = sequelize.import(__dirname + '/models/AkademskaGodina.js');
 db.Korisnik = sequelize.import(__dirname + '/models/Korisnik.js');
 
-db.Odsjek = sequelize.import(__dirname + '/models/Odsjek.js');
-db.odsjek_predmet = sequelize.import(__dirname + '/models/odsjek_predmet');
-
 module.exports = db;
