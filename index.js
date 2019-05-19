@@ -8,11 +8,11 @@ const db = require('./db.js');
 
 //Konekcija na bazu
 db.sequelize.sync()
-    .then(() => console.log("Modul Student uspješno konektovan"))
-    .catch((err) => console.log("Modul Stdudent nije konektovan! GRESKA:", err));
+  .then(() => console.log("Modul Student uspješno konektovan"))
+  .catch((err) => console.log("Modul Stdudent nije konektovan! GRESKA:", err));
 
 //Setovanje header-a
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -23,13 +23,16 @@ app.use(function(req, res, next) {
 var predmeti = require('./Routes/predmeti.js');
 var ag = require('./Routes/akademskegodine.js');
 var studenti = require('./Routes/studenti.js');
+var zavrsni = require('./Routes/temezavrsni.js');
+var profesori = require('./Routes/profesori.js');
 
 
 //Definisanje koristenja dostupnih ruta
 app.use('/predmeti', predmeti);
 app.use('/akademskegodine', ag);
 app.use('/studenti', studenti);
-
+app.use('/temezavrsni', zavrsni);
+app.use('/profesori', profesori);
 
 
 app.listen(31918);
