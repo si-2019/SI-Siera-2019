@@ -20,16 +20,13 @@ router.get('/:idStudent', function (req, res) {
 
         //Pretvaranje blob objekta u sliku i kreiranje url-a iskoristivog za backend
         const blob = z[0].fotografija;
+        var url = "";
 
-        try {
+        if (blob != null) {
             var buffer = Buffer.from(blob);
-            var bufferBase64 = buffer.toString('base64');
-            var url = "data:image/png;base64," + buffer;
+            url = "data:image/png;base64," + buffer;
         }
-        catch (error) {
-            console.log(error);
-            throw error;
-        }
+
 
         // Kreiranje objekta student sa potrebnim informacijama
         z.forEach(student => {
