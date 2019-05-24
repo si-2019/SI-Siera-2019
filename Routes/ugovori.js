@@ -146,7 +146,6 @@ function kreirajTabeluPredmeta(doc, req) {
 router.get('/kreiraj/:idStudent', (req, res) => {
     const doc = new PDFDocument;
     doc.pipe(fs.createWriteStream(__dirname + '/Ugovori/' + req.params.idStudent + "st.pdf"));
-    console.log(__dirname);
     kreirajZaglavlje(doc,req);
 
     // Clanovi
@@ -244,6 +243,7 @@ router.get('/kreiraj/:idStudent', (req, res) => {
     upisiTextUCeliju(doc, "Datum: ", 55, 700);
     upisiTextUCeliju(doc, "Datum: ", 311, 700);
     doc.end();
+    res.send("Ugovor kreiran");
 });
 
 module.exports = router;
