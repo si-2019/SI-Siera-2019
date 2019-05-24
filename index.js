@@ -24,7 +24,8 @@ var ag = require('./Routes/akademskegodine.js');
 var studenti = require('./Routes/studenti.js');
 var zavrsni = require('./Routes/temezavrsni.js');
 var profesori = require('./Routes/profesori.js');
-var ugovori = require('./Routes/ugovori.js')
+var ugovori = require('./Routes/ugovori.js');
+var ispiti = require('./Routes/ispiti.js');
 
 
 //Definisanje koristenja dostupnih ruta
@@ -34,6 +35,7 @@ app.use('/studenti', studenti);
 app.use('/temezavrsni', zavrsni);
 app.use('/profesori', profesori);
 app.use('/ugovori', ugovori);
+app.use('/ispiti', ispiti);
 
 
 app.listen(31918);
