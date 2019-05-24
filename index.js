@@ -14,6 +14,7 @@ db.sequelize.sync()
 //Setovanje header-a
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
@@ -24,7 +25,12 @@ var ag = require('./Routes/akademskegodine.js');
 var studenti = require('./Routes/studenti.js');
 var zavrsni = require('./Routes/temezavrsni.js');
 var profesori = require('./Routes/profesori.js');
+
+
 var ispiti = require('./Routes/ispiti.js');
+
+var ocjene = require('./Routes/ocjene.js');
+
 
 
 //Definisanje koristenja dostupnih ruta
@@ -33,7 +39,20 @@ app.use('/akademskegodine', ag);
 app.use('/studenti', studenti);
 app.use('/temezavrsni', zavrsni);
 app.use('/profesori', profesori);
+
+
+
+
+
+
+
+
+
 app.use('/ispiti', ispiti);
+
+app.use('/ocjene',ocjene);
+
+
 
 
 app.listen(31918);
