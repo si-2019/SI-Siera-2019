@@ -26,6 +26,7 @@ var studenti = require('./Routes/studenti.js');
 var zavrsni = require('./Routes/temezavrsni.js');
 var profesori = require('./Routes/profesori.js');
 var ocjene = require('./Routes/ocjene.js');
+var ispiti = require('./Routes/ispiti.js');
 
 
 //Definisanje koristenja dostupnih ruta
@@ -35,6 +36,7 @@ app.use('/studenti', studenti);
 app.use('/temezavrsni', zavrsni);
 app.use('/profesori', profesori);
 app.use('/ocjene',ocjene);
+app.use('/ispiti', ispiti);
 
 
 
