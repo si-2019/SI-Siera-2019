@@ -9,27 +9,17 @@ router.use(bodyParser.urlencoded({ extended: true }));
 
 function celija(doc, x, y, width, height) {
     doc.lineJoin('miter')
-      .rect(x, y, width, height)
-      .stroke()
+        .rect(x, y, width, height)
+        .stroke()
     return doc
 }
 
 function upisiTextUCelijuBold(doc, text, width, heigth) {
-        doc.y = heigth;
-        doc.x = width;
-        doc.fillColor('black')
-            .fontSize(10)
-            .font('Times-Bold')
-        doc.text(text);
-        return doc
-}
-
-function upisiTextUCeliju(doc, text, width, heigth) {
     doc.y = heigth;
     doc.x = width;
     doc.fillColor('black')
         .fontSize(10)
-        .font('Times-Roman')
+        .font('Times-Bold')
     doc.text(text);
     return doc
 }
@@ -44,48 +34,58 @@ function upisiTextUCeliju(doc, text, width, heigth) {
     return doc
 }
 
+function upisiTextUCeliju(doc, text, width, heigth) {
+    doc.y = heigth;
+    doc.x = width;
+    doc.fillColor('black')
+        .fontSize(10)
+        .font('Times-Roman')
+    doc.text(text);
+    return doc
+}
 
-function kreirajZaglavlje(doc,req) {
+
+function kreirajZaglavlje(doc, req) {
     doc.fillColor('#2D74CF')
-    .fontSize(18)
-    .text('Elektrotehnicki fakultet u Sarajevu', 75, 20, {align : 'center'});
+        .fontSize(18)
+        .text('Elektrotehnicki fakultet u Sarajevu', 75, 20, { align: 'center' });
 
-doc.image('logo.png', doc.page.width/2 - 25, 45, {fit: [50, 50], align: 'center', valign:'center'})
-    .fontSize(16)
-    .text('Ugovor o ucenju',75, 100, {align: 'center'});
+    doc.image('logo.png', doc.page.width / 2 - 25, 45, { fit: [50, 50], align: 'center', valign: 'center' })
+        .fontSize(16)
+        .text('Ugovor o ucenju', 75, 100, { align: 'center' });
 
-var osnovniPodaci = [["Univerzitet", "UNIVERZITET U SARAJEVU", "Akademska godina:", new Date().getFullYear()], ["Naziv maticne institucije:", "ELEKTROTEHNICKI FAKULTET", 
-"Godina studija:", `${req.body.godina}.`], ["Odsjek i ciklus studija:",`${req.body.odsjek} / ${req.body.ciklus}. ciklus`, "Semestar:", `${req.body.semestar}.`]];
+    var osnovniPodaci = [["Univerzitet", "UNIVERZITET U SARAJEVU", "Akademska godina:", new Date().getFullYear()], ["Naziv maticne institucije:", "ELEKTROTEHNICKI FAKULTET",
+        "Godina studija:", `${req.body.godina}.`], ["Odsjek i ciklus studija:", `${req.body.odsjek} / ${req.body.ciklus}. ciklus`, "Semestar:", `${req.body.semestar}.`]];
 
-// Kreiranje osnovnih podataka
-var x = 50;
-var y = 130;
-var duzina = 150;
-for(var i = 0; i < 3; i++) {
-    for(var j = 0; j < 4; j++) {
-        
-        if(j === 0 || j === 2)
-            upisiTextUCelijuBold(doc, osnovniPodaci[i][j], x + 3 , y + 3);
-        else if(j === 1 || j === 3)
-            upisiTextUCeliju(doc, osnovniPodaci[i][j], x + 3, y + 3);
-        
-       if(j == 3)
-        celija(doc, x, y, duzina - 88, 15);
-        else
-            celija(doc, x, y, duzina, 15);
-            x+= 150;
+    // Kreiranje osnovnih podataka
+    var x = 50;
+    var y = 130;
+    var duzina = 150;
+    for (var i = 0; i < 3; i++) {
+        for (var j = 0; j < 4; j++) {
+
+            if (j === 0 || j === 2)
+                upisiTextUCelijuBold(doc, osnovniPodaci[i][j], x + 3, y + 3);
+            else if (j === 1 || j === 3)
+                upisiTextUCeliju(doc, osnovniPodaci[i][j], x + 3, y + 3);
+
+            if (j == 3)
+                celija(doc, x, y, duzina - 88, 15);
+            else
+                celija(doc, x, y, duzina, 15);
+            x += 150;
+        }
+        duzina = 150;
+        x = 50;
+        y = y + 15;
     }
-    duzina = 150;
-    x = 50;
-    y = y + 15;
-}
 
-celija(doc, 50, 190, 256, 15); celija(doc, 306, 190, 256,15);
-celija(doc, 50, 205, 256, 15); celija(doc, 306, 205, 256, 15);
-upisiTextUCelijuBold(doc, "Ime i prezime: ", 53, 193);
-upisiTextUCeliju(doc, req.body.ime + " " + req.body.prezime, 309, 193);
-upisiTextUCelijuBold(doc, "Indeks: ", 53, 211);
-upisiTextUCeliju(doc, req.body.indeks, 309, 211);
+    celija(doc, 50, 190, 256, 15); celija(doc, 306, 190, 256, 15);
+    celija(doc, 50, 205, 256, 15); celija(doc, 306, 205, 256, 15);
+    upisiTextUCelijuBold(doc, "Ime i prezime: ", 53, 193);
+    upisiTextUCeliju(doc, req.body.ime + " " + req.body.prezime, 309, 193);
+    upisiTextUCelijuBold(doc, "Indeks: ", 53, 211);
+    upisiTextUCeliju(doc, req.body.indeks, 309, 211);
 
 }
 
@@ -93,48 +93,49 @@ function kreirajTabeluPredmeta(doc, req) {
     var y = 250;
     var obavezni = req.body['obavezni'].split(',');
     var izborni = req.body['izborni'].split(',');
-    
-    for(var i = 0; i < 12; i++) {
+
+    for (var i = 0; i < 12; i++) {
         celija(doc, 50, y, 512, 15);
-        if(i < 8) {
-            if(i == 0) {
+        if (i < 8) {
+            if (i == 0) {
                 doc.font('Times-Bold')
-                .text('Obavezni predmeti',75, y+3, {align: 'center'})
+                    .text('Obavezni predmeti', 75, y + 3, { align: 'center' })
             }
             else {
-                if(obavezni[i - 1]) {
+                if (obavezni[i - 1]) {
                     doc.font('Times-Roman')
-                        .text(obavezni[i - 1],75, y+3, {align: 'center'})
+                        .text(obavezni[i - 1], 75, y + 3, { align: 'center' })
                 }
             }
         }
         else {
-            if(i == 8) {
+            if (i == 8) {
                 doc.font('Times-Bold')
-                .text('Izborni predmeti',75, y+3, {align: 'center'})
+                    .text('Izborni predmeti', 75, y + 3, { align: 'center' })
             }
-            else{
-                if(izborni[i - 9]) {
+            else {
+                if (izborni[i - 9]) {
                     doc.font('Times-Roman')
-                        .text(izborni[i - 9],75, y+3, {align: 'center'})
+                        .text(izborni[i - 9], 75, y + 3, { align: 'center' })
                 }
             }
         }
-        y+=15;
+        y += 15;
     }
 }
 
 router.get('/kreiraj/:idStudent', (req, res) => {
+
     const doc = new PDFDocument;
     doc.pipe(fs.createWriteStream(__dirname + '/Ugovori/' + req.params.idStudent + "st.pdf"));
-    kreirajZaglavlje(doc,req);
+    kreirajZaglavlje(doc, req);
 
     // Clanovi
 
     var clanovi = [`Student se obavezuje na izvrsavanej svih obaveza predvidjenih planom i programom studija koji upisuje kao i na postivanje svih obaveza predvidjenih pravilima studiranja za ${req.body.ciklus}. ciklus studija na visokoskolskoj ustanovi.`,
-    "Student se dalje obavezuje na postivanje discipline, kucnog reda i cuvanje imovine visokoskolske ustanove u skladu sa njenim pravilnicima. U slucaju materijalne stete, student je obavezan da istu nadoknadi.",
-    "Maticna institucija ce omoguciti studentu da prati i polaze ispite na modulima koje je izabrao/la u tabelama koje su sastavni dio ovog ugovora. Ukoliko izabrani izborni modul ne zadovolji kriterij minimalnog broja kandidata koji su ga izabrali, studentu ce biti ponudjeno da izabere izborne module koji su zadovoljili pomenuti kriterij.",
-    "Svi eventualni sporovi izmedju ugovornih strana ce se rijesavati u duhu medjusobnog uvazavanja i postovanja, a u skladu sa visokim etickim standardima akademske zajednice. U slucaju sporova koji ne mogu biti rijeseni ovim putem, obadvije strane prihvataju nadleznost Suda u Sarajevu."];
+        "Student se dalje obavezuje na postivanje discipline, kucnog reda i cuvanje imovine visokoskolske ustanove u skladu sa njenim pravilnicima. U slucaju materijalne stete, student je obavezan da istu nadoknadi.",
+        "Maticna institucija ce omoguciti studentu da prati i polaze ispite na modulima koje je izabrao/la u tabelama koje su sastavni dio ovog ugovora. Ukoliko izabrani izborni modul ne zadovolji kriterij minimalnog broja kandidata koji su ga izabrali, studentu ce biti ponudjeno da izabere izborne module koji su zadovoljili pomenuti kriterij.",
+        "Svi eventualni sporovi izmedju ugovornih strana ce se rijesavati u duhu medjusobnog uvazavanja i postovanja, a u skladu sa visokim etickim standardima akademske zajednice. U slucaju sporova koji ne mogu biti rijeseni ovim putem, obadvije strane prihvataju nadleznost Suda u Sarajevu."];
 
 
 
@@ -143,7 +144,7 @@ router.get('/kreiraj/:idStudent', (req, res) => {
 
     doc.fontSize(11)
         .font('Times-Bold')
-        .text('Clan 1.',75, 255, {align: 'center'})
+        .text('Clan 1.', 75, 255, { align: 'center' })
         .font('Times-Roman')
         .fontSize(10)
         .text(`${clanovi[0]}`, 53, 270);
@@ -151,7 +152,7 @@ router.get('/kreiraj/:idStudent', (req, res) => {
     celija(doc, 50, 330, 512, 50);
     doc.fontSize(11)
         .font('Times-Bold')
-        .text('Clan 2.',75, 335, {align: 'center'})
+        .text('Clan 2.', 75, 335, { align: 'center' })
         .font('Times-Roman')
         .fontSize(10)
         .text(`${clanovi[1]}`, 53, 350);
@@ -159,7 +160,7 @@ router.get('/kreiraj/:idStudent', (req, res) => {
     celija(doc, 50, 410, 512, 60);
     doc.fontSize(11)
         .font('Times-Bold')
-        .text('Clan 3.',75, 415, {align: 'center'})
+        .text('Clan 3.', 75, 415, { align: 'center' })
         .font('Times-Roman')
         .fontSize(10)
         .text(`${clanovi[2]}`, 53, 430);
@@ -167,7 +168,7 @@ router.get('/kreiraj/:idStudent', (req, res) => {
     celija(doc, 50, 500, 512, 60);
     doc.fontSize(11)
         .font('Times-Bold')
-        .text('Clan 4.',75, 505, {align: 'center'})
+        .text('Clan 4.', 75, 505, { align: 'center' })
         .font('Times-Roman')
         .fontSize(10)
         .text(`${clanovi[3]}`, 53, 520);
@@ -186,7 +187,7 @@ router.get('/kreiraj/:idStudent', (req, res) => {
 
     doc.addPage();
 
-    kreirajZaglavlje(doc,req);
+    kreirajZaglavlje(doc, req);
     kreirajTabeluPredmeta(doc, req);
 
     celija(doc, 50, 440, 256, 30); celija(doc, 306, 440, 256, 30);
@@ -201,17 +202,18 @@ router.get('/kreiraj/:idStudent', (req, res) => {
 
     celija(doc, 50, 530, 512, 15);
     doc.font('Times-Bold')
-        .text('Izmjene u prvobitno predlozenom programu studija/ugovoru o ucenju',75, 533, {align: 'center'})
+        .text('Izmjene u prvobitno predlozenom programu studija/ugovoru o ucenju', 75, 533, { align: 'center' })
 
-        var y = 545;
-        for(var i = 0; i < 4; i++) {
-            celija(doc, 50, y, 256, 15); celija(doc, 306, y, 256, 15);
-            if(i == 0) {i
-                upisiTextUCeliju(doc, "Izostavljeni predmeti", 55, y + 3);
-                upisiTextUCeliju(doc, "Dodani predmeti", 311, y+3);
-            }
-            y += 15;
+    var y = 545;
+    for (var i = 0; i < 4; i++) {
+        celija(doc, 50, y, 256, 15); celija(doc, 306, y, 256, 15);
+        if (i == 0) {
+            i
+            upisiTextUCeliju(doc, "Izostavljeni predmeti", 55, y + 3);
+            upisiTextUCeliju(doc, "Dodani predmeti", 311, y + 3);
         }
+        y += 15;
+    }
     celija(doc, 50, 620, 256, 30); celija(doc, 306, 620, 256, 30);
     upisiTextUCelijuBold(doc, "Potpis studenta: ", 55, 630);
     upisiTextUCeliju(doc, "Datum: ", 311, 630);
@@ -223,17 +225,18 @@ router.get('/kreiraj/:idStudent', (req, res) => {
     celija(doc, 50, 695, 256, 20); celija(doc, 306, 695, 256, 20);
     upisiTextUCeliju(doc, "Datum: ", 55, 700);
     upisiTextUCeliju(doc, "Datum: ", 311, 700);
-    doc.end();
+    doc.end()
 
     const student_id = req.params.idStudent;
-    var data = fs.readFileSync('Routes/Ugovori/' + student_id + 'st.pdf');
-    var pdf = data.toString('base64');
-    
+
     db.Ugovori.findAll({
         where: {
             idStudent: student_id
         }
     }).then(student => {
+
+        var data = fs.readFileSync('Routes/Ugovori/' + student_id + 'st.pdf');
+        var pdf = data.toString('base64');
 
         var datum = new Date().getFullYear() + '-' + new Date().getMonth() + '-' + new Date().getDate() + ' ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getSeconds();
 
@@ -252,6 +255,7 @@ router.get('/kreiraj/:idStudent', (req, res) => {
 
         }
     });
+
 
 });
 
