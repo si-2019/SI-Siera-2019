@@ -30,7 +30,7 @@ var profesori = require('./Routes/profesori.js');
 var ispiti = require('./Routes/ispiti.js');
 
 var ocjene = require('./Routes/ocjene.js');
-
+var prosjek = require('./Routes/prosjek.js');
 
 
 //Definisanje koristenja dostupnih ruta
@@ -50,8 +50,8 @@ app.use('/profesori', profesori);
 
 app.use('/ispiti', ispiti);
 
-app.use('/ocjene',ocjene);
-
+app.use('/ocjene', ocjene);
+app.use('/prosjek', prosjek);
 
 
 
