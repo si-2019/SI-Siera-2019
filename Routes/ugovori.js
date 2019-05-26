@@ -44,25 +44,6 @@ function upisiTextUCeliju(doc, text, width, heigth) {
     return doc
 }
 
-function vratiGodinuStudiranja(ciklus, semestar) {
-    var godina;
-    if(ciklus == 1 && (semestar == 1 || semestar == 2)) {
-        godina = 1;
-    }
-    else if(ciklus == 1 && (semestar == 3 || semestar == 4)) {
-        godina = 2;
-    }
-    else if(ciklus == 1 && (semestar == 5 || semestar == 6)) {
-        godina = 3;
-    }
-    else if(ciklus == 2 && (semestar == 1 || semestar == 2)) {
-        godina = 4;
-    }
-    else if(ciklus == 2 && (semestar == 3 || semestar == 4)) {
-        godina = 5;
-    }
-    return godina;
-}
 
 function kreirajZaglavlje(doc,req) {
     doc.fillColor('#2D74CF')
@@ -74,7 +55,7 @@ doc.image('logo.png', doc.page.width/2 - 25, 45, {fit: [50, 50], align: 'center'
     .text('Ugovor o ucenju',75, 100, {align: 'center'});
 
 var osnovniPodaci = [["Univerzitet", "UNIVERZITET U SARAJEVU", "Akademska godina:", new Date().getFullYear()], ["Naziv maticne institucije:", "ELEKTROTEHNICKI FAKULTET", 
-"Godina studija:", `${vratiGodinuStudiranja(req.body.ciklus, req.body.semestar)}.`], ["Odsjek i ciklus studija:",`${req.body.odsjek} / ${req.body.ciklus}. ciklus`, "Semestar:", `${req.body.semestar}.`]];
+"Godina studija:", `${req.body.godina}.`], ["Odsjek i ciklus studija:",`${req.body.odsjek} / ${req.body.ciklus}. ciklus`, "Semestar:", `${req.body.semestar}.`]];
 
 // Kreiranje osnovnih podataka
 var x = 50;
@@ -112,7 +93,7 @@ function kreirajTabeluPredmeta(doc, req) {
     var y = 250;
     var obavezni = req.body['obavezni'].split(',');
     var izborni = req.body['izborni'].split(',');
-
+    
     for(var i = 0; i < 12; i++) {
         celija(doc, 50, y, 512, 15);
         if(i < 8) {
@@ -121,9 +102,9 @@ function kreirajTabeluPredmeta(doc, req) {
                 .text('Obavezni predmeti',75, y+3, {align: 'center'})
             }
             else {
-                if(obavezni[i]) {
+                if(obavezni[i - 1]) {
                     doc.font('Times-Roman')
-                        .text(obavezni[i],75, y+3, {align: 'center'})
+                        .text(obavezni[i - 1],75, y+3, {align: 'center'})
                 }
             }
         }
@@ -243,7 +224,35 @@ router.get('/kreiraj/:idStudent', (req, res) => {
     upisiTextUCeliju(doc, "Datum: ", 55, 700);
     upisiTextUCeliju(doc, "Datum: ", 311, 700);
     doc.end();
-    res.send("Ugovor kreiran");
+
+    const student_id = req.params.idStudent;
+    var data = fs.readFileSync('Routes/Ugovori/' + student_id + 'st.pdf');
+    var pdf = data.toString('base64');
+    
+    db.Ugovori.findAll({
+        where: {
+            idStudent: student_id
+        }
+    }).then(student => {
+
+        var datum = new Date().getFullYear() + '-' + new Date().getMonth() + '-' + new Date().getDate() + ' ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getSeconds();
+
+        if (!student[0]) {
+            db.sequelize.query("INSERT INTO Ugovori (idStudent, ugovor, datumKreiranja) VALUES (" + student_id + ",'" + pdf + "','" + datum + "')").then(info => res.status(200).send({
+                success: 'true',
+                message: 'Ugovor added successfully'
+            }))
+        }
+        else {
+            db.sequelize.query("UPDATE Ugovori SET ugovor='" + pdf + "',datumKreiranja='" + datum + "'  WHERE idStudent=" + student_id).then(info => res.status(201).send({
+                info: info,
+                success: 'true',
+                message: 'Ugovor updated successfully'
+            }))
+
+        }
+    });
+
 });
 
 module.exports = router;
