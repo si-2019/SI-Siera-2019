@@ -259,4 +259,30 @@ router.get('/kreiraj/:idStudent', (req, res) => {
 
 });
 
+router.get('/url/:idStudent', (req, res) => {
+
+    const student_id = req.params.idStudent;
+
+    db.Ugovori.findAll({
+        where: {
+            idStudent: student_id
+        }
+    }).then(ugovor => {
+
+        if (!ugovor[0]) {
+            res.send({
+                link: null
+            })
+        }
+        else {
+            var ug = ugovor[0].ugovor;
+            var url = "data:application/pdf;base64," + ug;
+            res.send(
+                {
+                    link: url
+                })
+        }
+    })
+});
+
 module.exports = router;
