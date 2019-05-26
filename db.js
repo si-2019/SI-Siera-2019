@@ -28,4 +28,6 @@ db.TemeZavrsnih = sequelize.import(__dirname + '/models/TemeZavrsnih.js');
 db.Ispit = sequelize.import(__dirname + '/models/Ispit.js');
 db.IspitBodovi = sequelize.import(__dirname + '/models/IspitBodovi.js');
 
+db.Ugovori = sequelize.import(__dirname + '/models/Ugovori.js');
+
 module.exports = db;
