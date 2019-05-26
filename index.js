@@ -14,6 +14,7 @@ db.sequelize.sync()
 //Setovanje header-a
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
@@ -26,6 +27,8 @@ var zavrsni = require('./Routes/temezavrsni.js');
 var profesori = require('./Routes/profesori.js');
 var ugovori = require('./Routes/ugovori.js');
 var ispiti = require('./Routes/ispiti.js');
+var ocjene = require('./Routes/ocjene.js');
+var prosjek = require('./Routes/prosjek.js');
 
 
 
@@ -37,5 +40,7 @@ app.use('/temezavrsni', zavrsni);
 app.use('/profesori', profesori);
 app.use('/ugovori', ugovori);
 app.use('/ispiti', ispiti);
+app.use('/ocjene', ocjene);
+app.use('/prosjek', prosjek);
 
 app.listen(31918);
