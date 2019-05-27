@@ -29,6 +29,7 @@ var ugovori = require('./Routes/ugovori.js');
 var ispiti = require('./Routes/ispiti.js');
 var ocjene = require('./Routes/ocjene.js');
 var prosjek = require('./Routes/prosjek.js');
+var odsjek = require('./Routes/odsjek.js');
 
 
 
@@ -42,5 +43,6 @@ app.use('/ugovori', ugovori);
 app.use('/ispiti', ispiti);
 app.use('/ocjene', ocjene);
 app.use('/prosjek', prosjek);
+app.use('/odsjek', odsjek);
 
 app.listen(31918);
