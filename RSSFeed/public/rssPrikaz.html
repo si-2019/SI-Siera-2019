@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Test proba</title>
+</head>
+<body>
+    <button id="dugme" onclick="klik()">Klikni me</button>
+    <br>
+    <textarea id="pid"></textarea>
+    
+    <script>
+    
+        var paragraf = document.getElementById('pid')
+
+
+
+        function klik(){
+            paragraf.innerHTML=""
+            var ajax = new XMLHttpRequest()
+            ajax.onreadystatechange=function(){
+                if(ajax.readyState==4 && ajax.status==200){
+                    paragraf.innerHTML+=ajax.responseText
+                }
+            }
+            ajax.open("GET","http://localhost:8080/rss",true)
+            ajax.setRequestHeader('Content-Type','application/xml')
+            ajax.send()
+            
+        }
+    
+    </script>
+
+
+</body>
+</html>

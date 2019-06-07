@@ -12,6 +12,8 @@ router.get('/:idStudenta', function (req, res) {
     var ocjeneniz = []
     var brojac=0;
 
+    console.log("aaaaaa")
+
     db.sequelize.query("SELECT DISTINCT predmet_student.idAkademskaGodina, AkademskaGodina.naziv FROM predmet_student, AkademskaGodina WHERE predmet_student.idStudent=" + studnet_id + " AND predmet_student.idAkademskaGodina = AkademskaGodina.id ORDER BY AkademskaGodina.naziv").then(([godine,metadata])=>{
         for(var i=0; i<godine.length; i++){
             

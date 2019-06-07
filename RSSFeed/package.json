@@ -1,0 +1,16 @@
+{
+  "name": "rssfeed",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4",
+    "rss": "^1.2.2",
+    "save": "^2.3.3"
+  }
+}
