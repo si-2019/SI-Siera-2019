@@ -67,6 +67,44 @@ router.get('/:idStudenta', function (req, res) {
 
 });
 
+router.get('/:idStudenta/sort', function (req, res) {
 
+    const student_id = req.params.idStudenta;
+    var sort = [];
+    var objekat;
+    db.Korisnik.count({
+        where:
+        {
+            id: student_id
+        }
+    }).then(broj => {
+        if (broj == 0) {
+            return res.status(404).send({
+                success: 'false',
+                message: 'Korisnik not found'
+            });
+        }
+        else {
+            db.sequelize.query("SELECT Predmet.naziv, predmet_student.ocjena FROM Predmet, predmet_student WHERE predmet_student.idStudent=" + student_id + " AND predmet_student.idPredmet = Predmet.id ORDER BY predmet_student.ocjena, Predmet.naziv").then(([predmeti, metadata]) => {
+                for(var i = 0; i < predmeti.length; i++) {
+                    if(predmeti[i].ocjena == null) {
+                        continue;
+                    }
+                    else {
+                        objekat = {naziv : predmeti[i].naziv, ocjena : predmeti[i].ocjena};
+                        sort.push(objekat);
+                    }
+                    if(i == predmeti.length - 1) {
+                        return res.status(200).send({
+                            succes : 'true',
+                            message : 'Succesful',
+                            ocjene : sort
+                        })
+                    }
+                }
+            });
+        }
+    });
+}); 
 
 module.exports = router;
