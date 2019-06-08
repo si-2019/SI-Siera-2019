@@ -77,6 +77,58 @@ router.get('/odslusani/:idStudent', function (req, res, next) {
 
 });
 
+router.get('/brojIspita/:idStudent/sort', function(req, res) {
+    const student_id = req.params.idStudent;
+    var isp = [];
+    var p = false;
+    db.Korisnik.count({
+        where:
+        {
+            id: student_id
+        }
+    }).then(broj => {
+        if (broj == 0) {
+            return res.status(404).send({
+                success: 'false',
+                message: 'Korisnik not found'
+            });
+        }
+        else {
+            db.sequelize.query("SELECT DISTINCT Predmet.naziv FROM Predmet, IspitBodovi, predmet_student, Ispit WHERE  Ispit.idIspit = IspitBodovi.idIspita AND predmet_student.idStudent = " + student_id + " AND predmet_student.idPredmet = Ispit.idPredmet AND IspitBodovi.idKorisnika = " + student_id + " AND Predmet.id = predmet_student.idPredmet ORDER BY Predmet.naziv").then(([ispiti, metadata]) => {
+                if(ispiti.length == 0) {
+                    return res.status(200).send({
+                        succes : 'true',
+                        message : 'Korisnik nije polagao ni jedan ispit',
+                    });
+                }
+                for(var i = 0; i < ispiti.length; i++) {
+                    p = false;
+                    for(var j = 0; j < isp.length; j++) {
+                        if(ispiti[i].naziv == isp[j].naziv) {
+                            isp[j].brojPolaganja++;
+                            p = true;
+                        }
+                    }
+                    if(p == false) {
+                        isp.push({
+                            naziv : ispiti[i].naziv,
+                            brojPolaganja  : 1
+                        });
+                    }
+                    if(i == ispiti.length - 1) {
+                        isp.sort((a, b) => { a.brojPolaganja > b.brojPolaganja ? 1 : 0 })
+                        return res.status(200).send({
+                            succes : 'true',
+                            message : 'Succesful',
+                            ispiti : isp
+                        });
+                    }
+                }
+            });
+        }
+        });
+});
+
 router.get('/:idOdsjek/:godina/:semestar', function (req, res, next) {
 
     const odsjek = req.params.idOdsjek;
