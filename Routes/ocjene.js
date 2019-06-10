@@ -86,6 +86,12 @@ router.get('/:idStudenta/sort', function (req, res) {
         }
         else {
             db.sequelize.query("SELECT Predmet.naziv, predmet_student.ocjena FROM Predmet, predmet_student WHERE predmet_student.idStudent=" + student_id + " AND predmet_student.idPredmet = Predmet.id ORDER BY predmet_student.ocjena, Predmet.naziv").then(([predmeti, metadata]) => {
+                if(predmeti.length == 0) {
+                    return res.status(200).send({
+                        succes : 'true',
+                        message : 'Korisnik nije upisao ni jednu ocjenu',
+                    });
+                }
                 for(var i = 0; i < predmeti.length; i++) {
                     if(predmeti[i].ocjena == null) {
                         continue;

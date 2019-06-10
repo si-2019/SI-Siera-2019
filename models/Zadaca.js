@@ -24,15 +24,19 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     ukupnoBodova: {
-      type: DataTypes.INTEGER(11),
-      allowNull: true
-    },
-    ukupniOstvareniBodovi: {
-      type: DataTypes.INTEGER(11),
+      type: "DOUBLE",
       allowNull: true
     },
     postavka: {
       type: "BLOB",
+      allowNull: true
+    },
+    imeFajlaPostavke: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
+    tipFajlaPostavke: {
+      type: DataTypes.STRING(255),
       allowNull: true
     }
   }, {
