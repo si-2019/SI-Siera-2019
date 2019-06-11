@@ -30,6 +30,7 @@ var ispiti = require('./Routes/ispiti.js');
 var ocjene = require('./Routes/ocjene.js');
 var prosjek = require('./Routes/prosjek.js');
 var odsjek = require('./Routes/odsjek.js');
+var zadace = require('./Routes/zadace.js');
 
 
 
@@ -44,5 +45,6 @@ app.use('/ispiti', ispiti);
 app.use('/ocjene', ocjene);
 app.use('/prosjek', prosjek);
 app.use('/odsjek', odsjek);
+app.use('/zadace', zadace);
 
 app.listen(31918);

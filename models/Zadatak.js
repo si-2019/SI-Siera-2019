@@ -20,35 +20,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     maxBrojBodova: {
-      type: DataTypes.INTEGER(11),
-      allowNull: true
-    },
-    brojOstvarenihBodova: {
-      type: DataTypes.INTEGER(11),
-      allowNull: true
-    },
-    profesorovKomentar: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    datumPredaje: {
-      type: DataTypes.DATE,
-      allowNull: true
-    },
-    statusZadatka: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    sadrzajFile: {
-      type: "BLOB",
-      allowNull: true
-    },
-    velicinaFile: {
-      type: DataTypes.INTEGER(11),
-      allowNull: true
-    },
-    mimeTipUpdateZadatka: {
-      type: DataTypes.STRING(255),
+      type: "DOUBLE",
       allowNull: true
     }
   }, {
