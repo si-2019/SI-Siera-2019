@@ -25,8 +25,14 @@ var ag = require('./Routes/akademskegodine.js');
 var studenti = require('./Routes/studenti.js');
 var zavrsni = require('./Routes/temezavrsni.js');
 var profesori = require('./Routes/profesori.js');
-var ocjene = require('./Routes/ocjene.js');
+
+var ugovori = require('./Routes/ugovori.js');
 var ispiti = require('./Routes/ispiti.js');
+var ocjene = require('./Routes/ocjene.js');
+var prosjek = require('./Routes/prosjek.js');
+var odsjek = require('./Routes/odsjek.js');
+var zadace = require('./Routes/zadace.js');
+
 
 
 
@@ -36,10 +42,12 @@ app.use('/akademskegodine', ag);
 app.use('/studenti', studenti);
 app.use('/temezavrsni', zavrsni);
 app.use('/profesori', profesori);
-app.use('/ocjene',ocjene);
+
+app.use('/ugovori', ugovori);
 app.use('/ispiti', ispiti);
-
-
-
+app.use('/ocjene', ocjene);
+app.use('/prosjek', prosjek);
+app.use('/odsjek', odsjek);
+app.use('/zadace', zadace);
 
 app.listen(31918);
