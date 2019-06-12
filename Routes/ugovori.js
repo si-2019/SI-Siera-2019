@@ -124,7 +124,7 @@ function kreirajTabeluPredmeta(doc, req) {
     }
 }
 
-router.get('/kreiraj/:idStudent', (req, res) => {
+router.post('/kreiraj/:idStudent', (req, res) => {
 
     const doc = new PDFDocument;
     doc.pipe(fs.createWriteStream(__dirname + '/Ugovori/' + req.params.idStudent + "st.pdf"));
