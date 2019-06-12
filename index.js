@@ -50,4 +50,8 @@ app.use('/prosjek', prosjek);
 app.use('/odsjek', odsjek);
 app.use('/zadace', zadace);
 
+app.get('/', function (req, res) {
+  res.send("Modul deployan");
+})
+
 app.listen(31918);
