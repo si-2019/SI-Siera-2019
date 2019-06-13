@@ -5,6 +5,8 @@ dotenv.config();
 
 const db = require('./db.js');
 
+var PORT = process.env.PORT || 31918
+
 
 //Konekcija na bazu
 db.sequelize.sync()
@@ -54,4 +56,4 @@ app.get('/', function (req, res) {
   res.send("Modul deployan");
 })
 
-app.listen(31918);
+app.listen(PORT, function () { console.log('server successfully started on port ' + PORT); });
