@@ -4,19 +4,30 @@ const db = require('../db.js');
 
 //Lista svih profesora u bazi
 
-router.get('/', function(req,res){
-    db.Korisnik.findAll({
-        where:{
-            idUloga:"3"
-        }
-    }).then(profesori=>res.json({
-        error: false,
-        data: profesori
-    })).catch(error=>res.json({
-        error: true,
-        data: [],
-        error:error
-    }));
+router.get('/', function (req, res) {
+    try {
+        db.Korisnik.findAll({
+            where: {
+                idUloga: "3"
+            }
+        }).then(profesori => res.json({
+            success: true,
+            error: false,
+            data: profesori
+        })).catch(error => res.json({
+            success: false,
+            error: true,
+            data: [],
+            error: error
+        }));
+    }
+    catch (e) {
+        console.log("Backend error: " + e);
+        res.status(400).json({
+            success: false,
+            error: e
+        })
+    }
 });
 
 
@@ -24,37 +35,37 @@ router.get('/', function(req,res){
 
 //Lista svih tema jednog profesora
 
-router.get('/temeZavrsni/:idProfesor', function(req,res){
+router.get('/temeZavrsni/:idProfesor', function (req, res) {
     const profesor_id = req.params.idProfesor
 
     db.Korisnik.count({
-        where:{
-            id:profesor_id
+        where: {
+            id: profesor_id
         }
-    }).then(broj=>{
+    }).then(broj => {
         if (broj == 0) {
             return res.status(404).send({
                 success: 'false',
                 message: 'Parameter idProfesor not found'
             });
         }
-        else{
+        else {
             db.TemeZavrsnih.findAll({
-                where:{
+                where: {
                     idProfesora: profesor_id
                 }
-            }).then(profesori=>res.json({
+            }).then(profesori => res.json({
                 error: false,
                 data: profesori
-            })).catch(error=>res.json({
+            })).catch(error => res.json({
                 error: true,
                 data: [],
-                error:error
+                error: error
             }));
         }
     })
 
-    
+
 })
 
 

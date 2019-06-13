@@ -8,22 +8,33 @@ const db = require('../db.js');
 
 router.get('/:idStudent', function (req, res, next) {
 
+    try {
 
-    const student_id = req.params.idStudent;
+        const student_id = req.params.idStudent;
 
-    db.predmet_student.findAll({
-        where: {
-            idStudent: student_id
-        }
-    }).then(predmeti => res.json({
-        error: false,
-        data: predmeti
-    }))
-        .catch(error => res.json({
-            error: true,
-            data: [],
-            error: error
-        }));
+        db.predmet_student.findAll({
+            where: {
+                idStudent: student_id
+            }
+        }).then(predmeti => res.json({
+            success: true,
+            error: false,
+            data: predmeti
+        }))
+            .catch(error => res.json({
+                success: false,
+                error: true,
+                data: [],
+                error: error
+            }));
+    }
+    catch (e) {
+        console.log("Backend error: " + e);
+        res.status(400).json({
+            success: false,
+            error: e
+        })
+    }
 });
 
 //Pretraga trenutnih predmeta
@@ -77,7 +88,7 @@ router.get('/odslusani/:idStudent', function (req, res, next) {
 
 });
 
-router.get('/brojIspita/:idStudent/sort', function(req, res) {
+router.get('/brojIspita/:idStudent/sort', function (req, res) {
     const student_id = req.params.idStudent;
     var isp = [];
     var p = false;
@@ -95,38 +106,38 @@ router.get('/brojIspita/:idStudent/sort', function(req, res) {
         }
         else {
             db.sequelize.query("SELECT DISTINCT Predmet.naziv FROM Predmet, IspitBodovi, predmet_student, Ispit WHERE  Ispit.idIspit = IspitBodovi.idIspita AND predmet_student.idStudent = " + student_id + " AND predmet_student.idPredmet = Ispit.idPredmet AND IspitBodovi.idKorisnika = " + student_id + " AND Predmet.id = predmet_student.idPredmet ORDER BY Predmet.naziv").then(([ispiti, metadata]) => {
-                if(ispiti.length == 0) {
+                if (ispiti.length == 0) {
                     return res.status(200).send({
-                        succes : 'true',
-                        message : 'Korisnik nije polagao ni jedan ispit',
+                        succes: 'true',
+                        message: 'Korisnik nije polagao ni jedan ispit',
                     });
                 }
-                for(var i = 0; i < ispiti.length; i++) {
+                for (var i = 0; i < ispiti.length; i++) {
                     p = false;
-                    for(var j = 0; j < isp.length; j++) {
-                        if(ispiti[i].naziv == isp[j].naziv) {
+                    for (var j = 0; j < isp.length; j++) {
+                        if (ispiti[i].naziv == isp[j].naziv) {
                             isp[j].brojPolaganja++;
                             p = true;
                         }
                     }
-                    if(p == false) {
+                    if (p == false) {
                         isp.push({
-                            naziv : ispiti[i].naziv,
-                            brojPolaganja  : 1
+                            naziv: ispiti[i].naziv,
+                            brojPolaganja: 1
                         });
                     }
-                    if(i == ispiti.length - 1) {
+                    if (i == ispiti.length - 1) {
                         isp.sort((a, b) => { a.brojPolaganja > b.brojPolaganja ? 1 : 0 })
                         return res.status(200).send({
-                            succes : 'true',
-                            message : 'Succesful',
-                            ispiti : isp
+                            succes: 'true',
+                            message: 'Succesful',
+                            ispiti: isp
                         });
                     }
                 }
             });
         }
-        });
+    });
 });
 
 router.get('/:idOdsjek/:godina/:semestar', function (req, res, next) {

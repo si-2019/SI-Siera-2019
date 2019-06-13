@@ -11,157 +11,193 @@ router.use(bodyParser.urlencoded({ extended: true }));
 
 // Vracanje podataka za korisnika sa id-om idStudent
 router.get('/:idStudent', function (req, res) {
+    try {
 
-    var stringic = [];
-    var objekat;
-    db.Korisnik.findAll({
-        where: { id: req.params.idStudent }
-    }).then(function (z) {
+        var stringic = [];
+        var objekat;
+        db.Korisnik.findAll({
+            where: { id: req.params.idStudent }
+        }).then(function (z) {
 
-        //Pretvaranje blob objekta u sliku i kreiranje url-a iskoristivog za backend
-        const blob = z[0].fotografija;
-        var url = "";
+            //Pretvaranje blob objekta u sliku i kreiranje url-a iskoristivog za backend
+            const blob = z[0].fotografija;
+            var url = "";
 
-        if (blob != null) {
-            var buffer = Buffer.from(blob);
-            url = "data:image/png;base64," + buffer;
-        }
+            if (blob != null) {
+                var buffer = Buffer.from(blob);
+                url = "data:image/png;base64," + buffer;
+            }
 
 
-        // Kreiranje objekta student sa potrebnim informacijama
-        z.forEach(student => {
-            objekat = {
-                id: student.id, ime: student.ime, prezime: student.prezime, adresa: student.adresa, ciklus: student.ciklus, datumRodjenja: student.datumRodjenja, drzavljanstvo: student.drzavljanstvo,
-                email: student.email, fotografija: url, imePrezimeMajke: student.imePrezimeMajke, imePrezimeOca: student.imePrezimeOca, indeks: student.indeks, jmbg: student.jmbg,
-                kanton: student.kanton, linkedin: student.linkedin, mjestoRodjenja: student.mjestoRodjenja, password: student.password, semestar: student.semestar, spol: student.spol,
-                telefon: student.telefon, titula: student.titula, username: student.username, website: student.website, idOdsjek: student.idOdsjek, idUloga: student.idUloga
-            };
-            stringic.push(objekat);
-        });
-        // slanje podataka u json-u
-        res.send(JSON.stringify(stringic));
-    }).catch(error => res.json({
-        error: true,
-        data: [],
-        error: error
-    }));
+            // Kreiranje objekta student sa potrebnim informacijama
+            z.forEach(student => {
+                objekat = {
+                    id: student.id, ime: student.ime, prezime: student.prezime, adresa: student.adresa, ciklus: student.ciklus, datumRodjenja: student.datumRodjenja, drzavljanstvo: student.drzavljanstvo,
+                    email: student.email, fotografija: url, imePrezimeMajke: student.imePrezimeMajke, imePrezimeOca: student.imePrezimeOca, indeks: student.indeks, jmbg: student.jmbg,
+                    kanton: student.kanton, linkedin: student.linkedin, mjestoRodjenja: student.mjestoRodjenja, password: student.password, semestar: student.semestar, spol: student.spol,
+                    telefon: student.telefon, titula: student.titula, username: student.username, website: student.website, idOdsjek: student.idOdsjek, idUloga: student.idUloga
+                };
+                stringic.push(objekat);
+            });
+            // slanje podataka u json-u
+            res.send(JSON.stringify(stringic));
+        }).catch(error => res.json({
+            success: false,
+            error: true,
+            data: [],
+            error: error
+        }));
+    }
+    catch (e) {
+        console.log("Backend error: " + e);
+        res.status(400).json({
+            success: false,
+            error: e
+        })
+    }
 });
 
 
 router.put('/update/imeprezime/:idStudent', (req, res) => {
+    try {
 
-    var student_id = req.params.idStudent;
+        var student_id = req.params.idStudent;
 
-    db.Korisnik.findAll({
-        where: {
-            id: student_id
-        },
-        attributes: ['id']
-    }).then(student => {
+        db.Korisnik.findAll({
+            where: {
+                id: student_id
+            },
+            attributes: ['id']
+        }).then(student => {
 
-        if (student.length == 0) {
-            return res.status(404).send({
-                success: 'false',
-                message: 'Korisnik not found'
-            });
-        }
+            if (student.length == 0) {
+                return res.status(404).send({
+                    success: 'false',
+                    message: 'Korisnik not found'
+                });
+            }
 
-        if (!req.body.ime) {
-            return res.status(400).send({
-                success: 'false',
-                message: 'ime is required',
-            });
-        } else if (!req.body.prezime) {
-            return res.status(400).send({
-                success: 'false',
-                message: 'prezime is required',
-            });
-        }
-        else {
-            var ime = req.body.ime;
-            var prezime = req.body.prezime;
-            db.sequelize.query("UPDATE Korisnik SET ime='" + ime + "', prezime='" + prezime + "' WHERE id=" + student_id).then(info => res.status(201).send({
-                success: 'true',
-                message: 'Korisnik updated successfully'
-            }))
-        }
+            if (!req.body.ime) {
+                return res.status(400).send({
+                    success: 'false',
+                    message: 'ime is required',
+                });
+            } else if (!req.body.prezime) {
+                return res.status(400).send({
+                    success: 'false',
+                    message: 'prezime is required',
+                });
+            }
+            else {
+                var ime = req.body.ime;
+                var prezime = req.body.prezime;
+                db.sequelize.query("UPDATE Korisnik SET ime='" + ime + "', prezime='" + prezime + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                    success: 'true',
+                    message: 'Korisnik updated successfully'
+                }))
+            }
 
-    })
+        })
+    }
+    catch (e) {
+        console.log("Backend error: " + e);
+        res.status(400).json({
+            success: false,
+            error: e
+        })
+    }
 });
 
 router.put('/update/drzavljanstvo/:idStudent', (req, res) => {
+    try {
+        var student_id = req.params.idStudent;
 
-    var student_id = req.params.idStudent;
+        db.Korisnik.findAll({
+            where: {
+                id: student_id
+            },
+            attributes: ['id']
+        }).then(student => {
 
-    db.Korisnik.findAll({
-        where: {
-            id: student_id
-        },
-        attributes: ['id']
-    }).then(student => {
-
-        if (student.length == 0) {
-            return res.status(404).send({
-                success: 'false',
-                message: 'Korisnik not found'
-            });
-        }
-        if (!req.body.drzavljanstvo) {
-            return res.status(400).send({
-                success: 'false',
-                message: 'drzavljanstvo is required',
-            });
-        }
-        else {
-            var drzavljanstvo = req.body.drzavljanstvo;
-            db.sequelize.query("UPDATE Korisnik SET drzavljanstvo='" + drzavljanstvo + "' WHERE id=" + student_id).then(info => res.status(201).send({
-                success: 'true',
-                message: 'Korisnik updated successfully'
-            }))
-        }
-    })
+            if (student.length == 0) {
+                return res.status(404).send({
+                    success: 'false',
+                    message: 'Korisnik not found'
+                });
+            }
+            if (!req.body.drzavljanstvo) {
+                return res.status(400).send({
+                    success: 'false',
+                    message: 'drzavljanstvo is required',
+                });
+            }
+            else {
+                var drzavljanstvo = req.body.drzavljanstvo;
+                db.sequelize.query("UPDATE Korisnik SET drzavljanstvo='" + drzavljanstvo + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                    success: 'true',
+                    message: 'Korisnik updated successfully'
+                }))
+            }
+        })
+    }
+    catch (e) {
+        console.log("Backend error: " + e);
+        res.status(400).json({
+            success: false,
+            error: e
+        })
+    }
 });
 
 //PUT api za izmjenu adrese
 
 router.put('/update/adresa/:idStudent', (req, res) => {
+    try {
 
-    var student_id = req.params.idStudent;
+        var student_id = req.params.idStudent;
 
-    //Provjera da li korisnik sa datim IDem postoji
-    db.Korisnik.findAll({
-        where: {
-            id: student_id
-        },
-        attributes: ['id']
-    }).then(student => {
+        //Provjera da li korisnik sa datim IDem postoji
+        db.Korisnik.findAll({
+            where: {
+                id: student_id
+            },
+            attributes: ['id']
+        }).then(student => {
 
-        if (student.length == 0) {
-            return res.status(404).send({
-                success: 'false',
-                message: 'Korisnik not found'
-            });
-        }
+            if (student.length == 0) {
+                return res.status(404).send({
+                    success: 'false',
+                    message: 'Korisnik not found'
+                });
+            }
 
-        //Provjera da li se u body-u nalaze odgovarajući parametri sa novim vrijednostima
-        if (!req.body.adresa) {
-            return res.status(400).send({
-                success: 'false',
-                message: 'adresa is required',
-            });
-        }
+            //Provjera da li se u body-u nalaze odgovarajući parametri sa novim vrijednostima
+            if (!req.body.adresa) {
+                return res.status(400).send({
+                    success: 'false',
+                    message: 'adresa is required',
+                });
+            }
 
-        //Ako je sve uredu vrsi se izmjena
-        else {
-            var adresa = req.body.adresa;
+            //Ako je sve uredu vrsi se izmjena
+            else {
+                var adresa = req.body.adresa;
 
-            db.sequelize.query("UPDATE Korisnik SET adresa='" + adresa + "' WHERE id=" + student_id).then(info => res.status(201).send({
-                success: 'true',
-                message: 'Korisnik updated successfully'
-            }))
-        }
+                db.sequelize.query("UPDATE Korisnik SET adresa='" + adresa + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                    success: 'true',
+                    message: 'Korisnik updated successfully'
+                }))
+            }
 
-    })
+        })
+    }
+    catch (e) {
+        console.log("Backend error: " + e);
+        res.status(400).json({
+            success: false,
+            error: e
+        })
+    }
 
 });
 
@@ -169,78 +205,96 @@ router.put('/update/adresa/:idStudent', (req, res) => {
 //PUT api za izmjenu telefona
 
 router.put('/update/tel/:idStudent', (req, res) => {
+    try {
+        var student_id = req.params.idStudent;
 
-    var student_id = req.params.idStudent;
+        db.Korisnik.findAll({
+            where: {
+                id: student_id
+            },
+            attributes: ['id']
+        }).then(student => {
 
-    db.Korisnik.findAll({
-        where: {
-            id: student_id
-        },
-        attributes: ['id']
-    }).then(student => {
+            if (student.length == 0) {
+                return res.status(404).send({
+                    success: 'false',
+                    message: 'Korisnik not found'
+                });
+            }
 
-        if (student.length == 0) {
-            return res.status(404).send({
-                success: 'false',
-                message: 'Korisnik not found'
-            });
-        }
+            if (!req.body.tel) {
+                return res.status(400).send({
+                    success: 'false',
+                    message: 'tel is required',
+                });
+            }
+            else {
+                var tel = req.body.tel;
 
-        if (!req.body.tel) {
-            return res.status(400).send({
-                success: 'false',
-                message: 'tel is required',
-            });
-        }
-        else {
-            var tel = req.body.tel;
+                db.sequelize.query("UPDATE Korisnik SET telefon='" + tel + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                    success: 'true',
+                    message: 'Korisnik updated successfully'
+                }))
+            }
 
-            db.sequelize.query("UPDATE Korisnik SET telefon='" + tel + "' WHERE id=" + student_id).then(info => res.status(201).send({
-                success: 'true',
-                message: 'Korisnik updated successfully'
-            }))
-        }
-
-    })
+        })
+    }
+    catch (e) {
+        console.log("Backend error: " + e);
+        res.status(400).json({
+            success: false,
+            error: e
+        })
+    }
 
 });
 
 //PUT api za izmjenu email adrese
 
+
 router.put('/update/mail/:idStudent', (req, res) => {
+    try {
+        var student_id = req.params.idStudent;
 
-    var student_id = req.params.idStudent;
+        db.Korisnik.findAll({
+            where: {
+                id: student_id
+            },
+            attributes: ['id']
+        }).then(student => {
 
-    db.Korisnik.findAll({
-        where: {
-            id: student_id
-        },
-        attributes: ['id']
-    }).then(student => {
+            if (student.length == 0) {
+                return res.status(404).send({
+                    success: 'false',
+                    message: 'Korisnik not found'
+                });
+            }
 
-        if (student.length == 0) {
-            return res.status(404).send({
-                success: 'false',
-                message: 'Korisnik not found'
-            });
-        }
+            if (!req.body.mail) {
+                return res.status(400).send({
+                    success: 'false',
+                    message: 'mail is required',
+                });
+            }
+            else {
+                var mail = req.body.mail;
 
-        if (!req.body.mail) {
-            return res.status(400).send({
-                success: 'false',
-                message: 'mail is required',
-            });
-        }
-        else {
-            var mail = req.body.mail;
+                db.sequelize.query("UPDATE Korisnik SET email='" + mail + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                    success: 'true',
+                    message: 'Korisnik updated successfully'
+                }))
+            }
 
-            db.sequelize.query("UPDATE Korisnik SET email='" + mail + "' WHERE id=" + student_id).then(info => res.status(201).send({
-                success: 'true',
-                message: 'Korisnik updated successfully'
-            }))
-        }
+        })
+    }
+    catch (e) {
+        console.log("Backend error: " + e);
+        res.status(400).json({
+            success: false,
+            error: e
+        })
+    }
 
-    })
 
 });
 
@@ -248,78 +302,95 @@ router.put('/update/mail/:idStudent', (req, res) => {
 
 router.put('/update/linkedin/:idStudent', (req, res) => {
 
-    var student_id = req.params.idStudent;
+    try {
+        var student_id = req.params.idStudent;
 
-    db.Korisnik.findAll({
-        where: {
-            id: student_id
-        },
-        attributes: ['id']
-    }).then(student => {
+        db.Korisnik.findAll({
+            where: {
+                id: student_id
+            },
+            attributes: ['id']
+        }).then(student => {
 
-        if (student.length == 0) {
-            return res.status(404).send({
-                success: 'false',
-                message: 'Korisnik not found'
-            });
-        }
+            if (student.length == 0) {
+                return res.status(404).send({
+                    success: 'false',
+                    message: 'Korisnik not found'
+                });
+            }
 
-        if (!req.body.linkedin) {
-            return res.status(400).send({
-                success: 'false',
-                message: 'linkedin is required',
-            });
-        }
-        else {
-            var linkedin = req.body.linkedin;
+            if (!req.body.linkedin) {
+                return res.status(400).send({
+                    success: 'false',
+                    message: 'linkedin is required',
+                });
+            }
+            else {
+                var linkedin = req.body.linkedin;
 
-            db.sequelize.query("UPDATE Korisnik SET linkedin='" + linkedin + "' WHERE id=" + student_id).then(info => res.status(201).send({
-                success: 'true',
-                message: 'Korisnik updated successfully'
-            }))
-        }
+                db.sequelize.query("UPDATE Korisnik SET linkedin='" + linkedin + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                    success: 'true',
+                    message: 'Korisnik updated successfully'
+                }))
+            }
 
-    })
+        })
+    }
+    catch (e) {
+        console.log("Backend error: " + e);
+        res.status(400).json({
+            success: false,
+            error: e
+        })
+    }
 
 });
 
 //PUT api za izmjenu website linka
 
 router.put('/update/website/:idStudent', (req, res) => {
+    try {
 
-    var student_id = req.params.idStudent;
+        var student_id = req.params.idStudent;
 
-    db.Korisnik.findAll({
-        where: {
-            id: student_id
-        },
-        attributes: ['id']
-    }).then(student => {
+        db.Korisnik.findAll({
+            where: {
+                id: student_id
+            },
+            attributes: ['id']
+        }).then(student => {
 
-        if (student.length == 0) {
-            return res.status(404).send({
-                success: 'false',
-                message: 'Korisnik not found'
-            });
-        }
+            if (student.length == 0) {
+                return res.status(404).send({
+                    success: 'false',
+                    message: 'Korisnik not found'
+                });
+            }
 
-        if (!req.body.website) {
-            return res.status(400).send({
-                success: 'false',
-                message: 'website is required',
-            });
-        }
-        else {
-            var website = req.body.website;
+            if (!req.body.website) {
+                return res.status(400).send({
+                    success: 'false',
+                    message: 'website is required',
+                });
+            }
+            else {
+                var website = req.body.website;
 
-            db.sequelize.query("UPDATE Korisnik SET website='" + website + "' WHERE id=" + student_id).then(info => res.status(201).send({
-                success: 'true',
-                message: 'Korisnik updated successfully'
-            }))
-        }
+                db.sequelize.query("UPDATE Korisnik SET website='" + website + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                    success: 'true',
+                    message: 'Korisnik updated successfully'
+                }))
+            }
 
-    })
-
+        })
+    }
+    catch (e) {
+        console.log("Backend error: " + e);
+        res.status(400).json({
+            success: false,
+            error: e
+        })
+    }
 });
 
 //Koristimo multer za spremanje lokalno slike koja se upload-a za izmjenu
@@ -355,35 +426,43 @@ const upload = multer({
 
 router.put('/update/foto/:idStudent', upload.single('foto'), (req, res) => {
 
+    try {
+        var student_id = req.params.idStudent;
 
-    var student_id = req.params.idStudent;
+        db.Korisnik.findAll({
+            where: {
+                id: student_id
+            },
+            attributes: ['id']
+        }).then(student => {
 
-    db.Korisnik.findAll({
-        where: {
-            id: student_id
-        },
-        attributes: ['id']
-    }).then(student => {
+            if (student.length == 0) {
+                return res.status(404).send({
+                    success: 'false',
+                    message: 'Korisnik not found'
+                });
+            }
+            else {
 
-        if (student.length == 0) {
-            return res.status(404).send({
-                success: 'false',
-                message: 'Korisnik not found'
-            });
-        }
-        else {
+                //Cita spremljenu sliku i konvertuje je tako da bude pogodna za snimanje u bazu kao blob objekat
+                var data = fs.readFileSync('uploads/novaSlika');
+                var foto = data.toString('base64');
 
-            //Cita spremljenu sliku i konvertuje je tako da bude pogodna za snimanje u bazu kao blob objekat
-            var data = fs.readFileSync('uploads/novaSlika');
-            var foto = data.toString('base64');
-
-            //Konacan upit na bazu koji mijenja sliku
-            db.sequelize.query("UPDATE Korisnik SET fotografija='" + foto + "' WHERE id=" + student_id).then(info => res.status(201).send({
-                success: 'true',
-                message: 'Korisnik updated successfully'
-            }))
-        }
-    })
+                //Konacan upit na bazu koji mijenja sliku
+                db.sequelize.query("UPDATE Korisnik SET fotografija='" + foto + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                    success: 'true',
+                    message: 'Korisnik updated successfully'
+                }))
+            }
+        })
+    }
+    catch (e) {
+        console.log("Backend error: " + e);
+        res.status(400).json({
+            success: false,
+            error: e
+        })
+    }
 });
 
 module.exports = router;
