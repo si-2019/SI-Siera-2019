@@ -39,7 +39,7 @@ router.get('/:idStudent', function (req, res1) {
                         return res1.status(200).send({
                             succes: 'true',
                             message: 'Succesful',
-                            ZadacePoGodinamaIPredmetima: 'Student jos nema zadaca'
+                            ZadacePoGodinamaIPredmetima: []
                         })
                     }
 
