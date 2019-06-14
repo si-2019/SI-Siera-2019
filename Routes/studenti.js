@@ -451,7 +451,8 @@ router.put('/update/foto/:idStudent', upload.single('foto'), (req, res) => {
                 //Konacan upit na bazu koji mijenja sliku
                 db.sequelize.query("UPDATE Korisnik SET fotografija='" + foto + "' WHERE id=" + student_id).then(info => res.status(201).send({
                     success: 'true',
-                    message: 'Korisnik updated successfully'
+                    message: 'Korisnik updated successfully',
+                    fotografija: foto
                 }))
             }
         })
