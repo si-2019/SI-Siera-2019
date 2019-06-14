@@ -1,60 +1,91 @@
-
 var express = require('express');
 var router = express.Router();
 const db = require('../db.js');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const multer = require('multer');
+const axios = require('axios');
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
 // Vracanje podataka za korisnika sa id-om idStudent
 router.get('/:idStudent', function (req, res) {
-    try {
 
-        var stringic = [];
-        var objekat;
-        db.Korisnik.findAll({
-            where: { id: req.params.idStudent }
-        }).then(function (z) {
+    //Autorizacija, provjera da li je korisnik student
+    axios.get("http://si2019oscar.herokuapp.com/pretragaId/imaUlogu/" + req.params.idStudent + "/STUDENT").then(response => {
+        if (response.data == true) {
+            try {
 
-            //Pretvaranje blob objekta u sliku i kreiranje url-a iskoristivog za backend
-            const blob = z[0].fotografija;
-            var url = "";
+                var stringic = [];
+                var objekat;
+                db.Korisnik.findAll({
+                    where: { id: req.params.idStudent }
+                }).then(function (z) {
 
-            if (blob != null) {
-                var buffer = Buffer.from(blob);
-                url = "data:image/png;base64," + buffer;
+                    //Pretvaranje blob objekta u sliku i kreiranje url-a iskoristivog za backend
+                    const blob = z[0].fotografija;
+                    var url = "";
+
+                    if (blob != null) {
+                        var buffer = Buffer.from(blob);
+                        url = "data:image/png;base64," + buffer;
+                    }
+
+
+                    // Kreiranje objekta student sa potrebnim informacijama
+                    z.forEach(student => {
+                        objekat = {
+                            id: student.id, ime: student.ime, prezime: student.prezime, adresa: student.adresa, ciklus: student.ciklus, datumRodjenja: student.datumRodjenja, drzavljanstvo: student.drzavljanstvo,
+                            email: student.email, fotografija: url, imePrezimeMajke: student.imePrezimeMajke, imePrezimeOca: student.imePrezimeOca, indeks: student.indeks, jmbg: student.jmbg,
+                            kanton: student.kanton, linkedin: student.linkedin, mjestoRodjenja: student.mjestoRodjenja, password: student.password, semestar: student.semestar, spol: student.spol,
+                            telefon: student.telefon, titula: student.titula, username: student.username, website: student.website, idOdsjek: student.idOdsjek, idUloga: student.idUloga
+                        };
+                        stringic.push(objekat);
+                    });
+                    // slanje podataka u json-u
+                    res.json({
+                        userAutorizacija: true,
+                        success: true,
+                        user: stringic
+                    })
+                    //Ispod error baza
+                }).catch(error => res.json({
+                    userAutorizacija: true,
+                    success: false,
+                    error: true,
+                    data: [],
+                    error: error
+                }));
             }
+            //Ispod bilo kakav error
+            catch (e) {
+                console.log("Backend error: " + e);
+                res.status(400).json({
+                    userAutorizacija: true,
+                    success: false,
+                    error: e
+                })
+            }
+        }
+        //ispod regularno ne valja uloga
+        else {
+            res.status(200).json({
+                userAutorizacija: false,
+                success: false
+            })
+        }
 
+    })
+        //ispod error kod autorizacija APIa
+        .catch(error => {
+            console.log(error);
+            res.json({
+                userAutorizacija: false,
+                success: false
+            })
+        });
 
-            // Kreiranje objekta student sa potrebnim informacijama
-            z.forEach(student => {
-                objekat = {
-                    id: student.id, ime: student.ime, prezime: student.prezime, adresa: student.adresa, ciklus: student.ciklus, datumRodjenja: student.datumRodjenja, drzavljanstvo: student.drzavljanstvo,
-                    email: student.email, fotografija: url, imePrezimeMajke: student.imePrezimeMajke, imePrezimeOca: student.imePrezimeOca, indeks: student.indeks, jmbg: student.jmbg,
-                    kanton: student.kanton, linkedin: student.linkedin, mjestoRodjenja: student.mjestoRodjenja, password: student.password, semestar: student.semestar, spol: student.spol,
-                    telefon: student.telefon, titula: student.titula, username: student.username, website: student.website, idOdsjek: student.idOdsjek, idUloga: student.idUloga
-                };
-                stringic.push(objekat);
-            });
-            // slanje podataka u json-u
-            res.send(JSON.stringify(stringic));
-        }).catch(error => res.json({
-            success: false,
-            error: true,
-            data: [],
-            error: error
-        }));
-    }
-    catch (e) {
-        console.log("Backend error: " + e);
-        res.status(400).json({
-            success: false,
-            error: e
-        })
-    }
 });
 
 
