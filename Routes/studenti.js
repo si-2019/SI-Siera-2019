@@ -286,150 +286,290 @@ router.put('/update/drzavljanstvo/:idStudent', (req, res) => {
 //PUT api za izmjenu adrese
 
 router.put('/update/adresa/:idStudent', (req, res) => {
-    try {
 
-        var student_id = req.params.idStudent;
+    axios.get('http://si2019oscar.herokuapp.com/pretragaId/' + req.params.idStudent + '/dajUlogu')
+        .then(response => {
+            //Ako nije null, ima ulogu
+            if (response.data != null) {
+                axios.get('http://si2019oscar.herokuapp.com/pretragaId/imaPrivilegiju/' + req.params.idStudent + '/editovanje-korisnika')
+                    .then(response => {
+                        //Prosla autorizacija
+                        if (response.data == true) {
+                            try {
 
-        //Provjera da li korisnik sa datim IDem postoji
-        db.Korisnik.findAll({
-            where: {
-                id: student_id
-            },
-            attributes: ['id']
-        }).then(student => {
+                                var student_id = req.params.idStudent;
 
-            if (student.length == 0) {
-                return res.status(404).send({
-                    success: 'false',
-                    message: 'Korisnik not found'
-                });
+                                //Provjera da li korisnik sa datim IDem postoji
+                                db.Korisnik.findAll({
+                                    where: {
+                                        id: student_id
+                                    },
+                                    attributes: ['id']
+                                }).then(student => {
+
+                                    if (student.length == 0) {
+                                        return res.status(404).send({
+                                            userAutorizacija: true,
+                                            success: false,
+                                            message: 'Korisnik not found'
+                                        });
+                                    }
+
+                                    //Provjera da li se u body-u nalaze odgovarajući parametri sa novim vrijednostima
+                                    if (!req.body.adresa) {
+                                        return res.status(400).send({
+                                            userAutorizacija: true,
+                                            success: false,
+                                            message: 'adresa is required',
+                                        });
+                                    }
+
+                                    //Ako je sve uredu vrsi se izmjena
+                                    else {
+                                        var adresa = req.body.adresa;
+
+                                        db.sequelize.query("UPDATE Korisnik SET adresa='" + adresa + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                                            userAutorizacija: true,
+                                            success: true,
+                                            message: 'Korisnik updated successfully'
+                                        }))
+                                    }
+
+                                })
+                            }
+                            catch (e) {
+                                console.log("Backend error: " + e);
+                                res.status(400).json({
+                                    userAutorizacija: true,
+                                    success: false,
+                                    error: e
+                                })
+                            }
+                        }
+                        //Nema privilegiju
+                        else {
+                            res.json({
+                                userAutorizacija: false,
+                                success: false,
+                                message: "Nema privilegiju"
+                            })
+                        }
+                        //error privilegija
+                    }).catch(error => {
+                        console.log(error);
+                        res.json({
+                            userAutorizacija: false,
+                            success: false
+                        })
+                    })
             }
-
-            //Provjera da li se u body-u nalaze odgovarajući parametri sa novim vrijednostima
-            if (!req.body.adresa) {
-                return res.status(400).send({
-                    success: 'false',
-                    message: 'adresa is required',
-                });
-            }
-
-            //Ako je sve uredu vrsi se izmjena
+            //Ne postoji id
             else {
-                var adresa = req.body.adresa;
-
-                db.sequelize.query("UPDATE Korisnik SET adresa='" + adresa + "' WHERE id=" + student_id).then(info => res.status(201).send({
-                    success: 'true',
-                    message: 'Korisnik updated successfully'
-                }))
+                res.json({
+                    userAutorizacija: false,
+                    success: false,
+                    message: "Ne postoji id"
+                })
             }
-
         })
-    }
-    catch (e) {
-        console.log("Backend error: " + e);
-        res.status(400).json({
-            success: false,
-            error: e
-        })
-    }
-
+        // error uloga
+        .catch(error => {
+            console.log(error);
+            res.json({
+                userAutorizacija: false,
+                success: false
+            })
+        });
 });
 
 
 //PUT api za izmjenu telefona
 
 router.put('/update/tel/:idStudent', (req, res) => {
-    try {
-        var student_id = req.params.idStudent;
 
-        db.Korisnik.findAll({
-            where: {
-                id: student_id
-            },
-            attributes: ['id']
-        }).then(student => {
+    axios.get('http://si2019oscar.herokuapp.com/pretragaId/' + req.params.idStudent + '/dajUlogu')
+        .then(response => {
+            //Ako nije null, ima ulogu
+            if (response.data != null) {
+                axios.get('http://si2019oscar.herokuapp.com/pretragaId/imaPrivilegiju/' + req.params.idStudent + '/editovanje-korisnika')
+                    .then(response => {
+                        //Prosla autorizacija
+                        if (response.data == true) {
+                            try {
+                                var student_id = req.params.idStudent;
 
-            if (student.length == 0) {
-                return res.status(404).send({
-                    success: 'false',
-                    message: 'Korisnik not found'
-                });
+                                db.Korisnik.findAll({
+                                    where: {
+                                        id: student_id
+                                    },
+                                    attributes: ['id']
+                                }).then(student => {
+
+                                    if (student.length == 0) {
+                                        return res.status(404).send({
+                                            userAutorizacija: true,
+                                            success: false,
+                                            message: 'Korisnik not found'
+                                        });
+                                    }
+
+                                    if (!req.body.tel) {
+                                        return res.status(400).send({
+                                            userAutorizacija: true,
+                                            success: false,
+                                            message: 'tel is required',
+                                        });
+                                    }
+                                    else {
+                                        var tel = req.body.tel;
+
+                                        db.sequelize.query("UPDATE Korisnik SET telefon='" + tel + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                                            userAutorizacija: true,
+                                            success: true,
+                                            message: 'Korisnik updated successfully'
+                                        }))
+                                    }
+
+                                })
+                            }
+                            catch (e) {
+                                console.log("Backend error: " + e);
+                                res.status(400).json({
+                                    userAutorizacija: true,
+                                    success: false,
+                                    error: e
+                                })
+                            }
+                        }
+                        //Nema privilegiju
+                        else {
+                            res.json({
+                                userAutorizacija: false,
+                                success: false,
+                                message: "Nema privilegiju"
+                            })
+                        }
+                        //error privilegija
+                    }).catch(error => {
+                        console.log(error);
+                        res.json({
+                            userAutorizacija: false,
+                            success: false
+                        })
+                    })
             }
-
-            if (!req.body.tel) {
-                return res.status(400).send({
-                    success: 'false',
-                    message: 'tel is required',
-                });
-            }
+            //Ne postoji id
             else {
-                var tel = req.body.tel;
-
-                db.sequelize.query("UPDATE Korisnik SET telefon='" + tel + "' WHERE id=" + student_id).then(info => res.status(201).send({
-                    success: 'true',
-                    message: 'Korisnik updated successfully'
-                }))
+                res.json({
+                    userAutorizacija: false,
+                    success: false,
+                    message: "Ne postoji id"
+                })
             }
-
         })
-    }
-    catch (e) {
-        console.log("Backend error: " + e);
-        res.status(400).json({
-            success: false,
-            error: e
-        })
-    }
-
+        // error uloga
+        .catch(error => {
+            console.log(error);
+            res.json({
+                userAutorizacija: false,
+                success: false
+            })
+        });
 });
 
 //PUT api za izmjenu email adrese
 
 
 router.put('/update/mail/:idStudent', (req, res) => {
-    try {
-        var student_id = req.params.idStudent;
 
-        db.Korisnik.findAll({
-            where: {
-                id: student_id
-            },
-            attributes: ['id']
-        }).then(student => {
+    axios.get('http://si2019oscar.herokuapp.com/pretragaId/' + req.params.idStudent + '/dajUlogu')
+        .then(response => {
+            //Ako nije null, ima ulogu
+            if (response.data != null) {
+                axios.get('http://si2019oscar.herokuapp.com/pretragaId/imaPrivilegiju/' + req.params.idStudent + '/editovanje-korisnika')
+                    .then(response => {
+                        //Prosla autorizacija
+                        if (response.data == true) {
+                            try {
+                                var student_id = req.params.idStudent;
 
-            if (student.length == 0) {
-                return res.status(404).send({
-                    success: 'false',
-                    message: 'Korisnik not found'
-                });
+                                db.Korisnik.findAll({
+                                    where: {
+                                        id: student_id
+                                    },
+                                    attributes: ['id']
+                                }).then(student => {
+
+                                    if (student.length == 0) {
+                                        return res.status(404).send({
+                                            userAutorizacija: true,
+                                            success: false,
+                                            message: 'Korisnik not found'
+                                        });
+                                    }
+
+                                    if (!req.body.mail) {
+                                        return res.status(400).send({
+                                            userAutorizacija: true,
+                                            success: false,
+                                            message: 'mail is required',
+                                        });
+                                    }
+                                    else {
+                                        var mail = req.body.mail;
+
+                                        db.sequelize.query("UPDATE Korisnik SET email='" + mail + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                                            userAutorizacija: true,
+                                            success: true,
+                                            message: 'Korisnik updated successfully'
+                                        }))
+                                    }
+
+                                })
+                            }
+                            catch (e) {
+                                console.log("Backend error: " + e);
+                                res.status(400).json({
+                                    userAutorizacija: true,
+                                    success: false,
+                                    error: e
+                                })
+                            }
+                        }
+                        //Nema privilegiju
+                        else {
+                            res.json({
+                                userAutorizacija: false,
+                                success: false,
+                                message: "Nema privilegiju"
+                            })
+                        }
+                        //error privilegija
+                    }).catch(error => {
+                        console.log(error);
+                        res.json({
+                            userAutorizacija: false,
+                            success: false
+                        })
+                    })
             }
-
-            if (!req.body.mail) {
-                return res.status(400).send({
-                    success: 'false',
-                    message: 'mail is required',
-                });
-            }
+            //Ne postoji id
             else {
-                var mail = req.body.mail;
-
-                db.sequelize.query("UPDATE Korisnik SET email='" + mail + "' WHERE id=" + student_id).then(info => res.status(201).send({
-                    success: 'true',
-                    message: 'Korisnik updated successfully'
-                }))
+                res.json({
+                    userAutorizacija: false,
+                    success: false,
+                    message: "Ne postoji id"
+                })
             }
-
         })
-    }
-    catch (e) {
-        console.log("Backend error: " + e);
-        res.status(400).json({
-            success: false,
-            error: e
-        })
-    }
-
-
+        // error uloga
+        .catch(error => {
+            console.log(error);
+            res.json({
+                userAutorizacija: false,
+                success: false
+            })
+        });
 });
 
 //PUT api za izmjenu linkedin linka
