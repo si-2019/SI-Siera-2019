@@ -576,95 +576,190 @@ router.put('/update/mail/:idStudent', (req, res) => {
 
 router.put('/update/linkedin/:idStudent', (req, res) => {
 
-    try {
-        var student_id = req.params.idStudent;
 
-        db.Korisnik.findAll({
-            where: {
-                id: student_id
-            },
-            attributes: ['id']
-        }).then(student => {
+    axios.get('http://si2019oscar.herokuapp.com/pretragaId/' + req.params.idStudent + '/dajUlogu')
+        .then(response => {
+            //Ako nije null, ima ulogu
+            if (response.data != null) {
+                axios.get('http://si2019oscar.herokuapp.com/pretragaId/imaPrivilegiju/' + req.params.idStudent + '/editovanje-korisnika')
+                    .then(response => {
+                        //Prosla autorizacija
+                        if (response.data == true) {
+                            try {
+                                var student_id = req.params.idStudent;
 
-            if (student.length == 0) {
-                return res.status(404).send({
-                    success: 'false',
-                    message: 'Korisnik not found'
-                });
+                                db.Korisnik.findAll({
+                                    where: {
+                                        id: student_id
+                                    },
+                                    attributes: ['id']
+                                }).then(student => {
+
+                                    if (student.length == 0) {
+                                        return res.status(404).send({
+                                            userAutorizacija: true,
+                                            success: false,
+                                            message: 'Korisnik not found'
+                                        });
+                                    }
+
+                                    if (!req.body.linkedin) {
+                                        return res.status(400).send({
+                                            userAutorizacija: true,
+                                            success: false,
+                                            message: 'linkedin is required',
+                                        });
+                                    }
+                                    else {
+                                        var linkedin = req.body.linkedin;
+
+                                        db.sequelize.query("UPDATE Korisnik SET linkedin='" + linkedin + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                                            userAutorizacija: true,
+                                            success: true,
+                                            message: 'Korisnik updated successfully'
+                                        }))
+                                    }
+
+                                })
+                            }
+                            catch (e) {
+                                console.log("Backend error: " + e);
+                                res.status(400).json({
+                                    userAutorizacija: true,
+                                    success: false,
+                                    error: e
+                                })
+                            }
+                        }
+                        //Nema privilegiju
+                        else {
+                            res.json({
+                                userAutorizacija: false,
+                                success: false,
+                                message: "Nema privilegiju"
+                            })
+                        }
+                        //error privilegija
+                    }).catch(error => {
+                        console.log(error);
+                        res.json({
+                            userAutorizacija: false,
+                            success: false
+                        })
+                    })
             }
-
-            if (!req.body.linkedin) {
-                return res.status(400).send({
-                    success: 'false',
-                    message: 'linkedin is required',
-                });
-            }
+            //Ne postoji id
             else {
-                var linkedin = req.body.linkedin;
-
-                db.sequelize.query("UPDATE Korisnik SET linkedin='" + linkedin + "' WHERE id=" + student_id).then(info => res.status(201).send({
-                    success: 'true',
-                    message: 'Korisnik updated successfully'
-                }))
+                res.json({
+                    userAutorizacija: false,
+                    success: false,
+                    message: "Ne postoji id"
+                })
             }
-
         })
-    }
-    catch (e) {
-        console.log("Backend error: " + e);
-        res.status(400).json({
-            success: false,
-            error: e
-        })
-    }
-
+        // error uloga
+        .catch(error => {
+            console.log(error);
+            res.json({
+                userAutorizacija: false,
+                success: false
+            })
+        });
 });
 
 //PUT api za izmjenu website linka
 
 router.put('/update/website/:idStudent', (req, res) => {
-    try {
 
-        var student_id = req.params.idStudent;
+    axios.get('http://si2019oscar.herokuapp.com/pretragaId/' + req.params.idStudent + '/dajUlogu')
+        .then(response => {
+            //Ako nije null, ima ulogu
+            if (response.data != null) {
+                axios.get('http://si2019oscar.herokuapp.com/pretragaId/imaPrivilegiju/' + req.params.idStudent + '/editovanje-korisnika')
+                    .then(response => {
+                        //Prosla autorizacija
+                        if (response.data == true) {
+                            try {
 
-        db.Korisnik.findAll({
-            where: {
-                id: student_id
-            },
-            attributes: ['id']
-        }).then(student => {
+                                var student_id = req.params.idStudent;
 
-            if (student.length == 0) {
-                return res.status(404).send({
-                    success: 'false',
-                    message: 'Korisnik not found'
-                });
+                                db.Korisnik.findAll({
+                                    where: {
+                                        id: student_id
+                                    },
+                                    attributes: ['id']
+                                }).then(student => {
+
+                                    if (student.length == 0) {
+                                        return res.status(404).send({
+                                            userAutorizacija: true,
+                                            success: false,
+                                            message: 'Korisnik not found'
+                                        });
+                                    }
+
+                                    if (!req.body.website) {
+                                        return res.status(400).send({
+                                            userAutorizacija: true,
+                                            success: false,
+                                            message: 'website is required',
+                                        });
+                                    }
+                                    else {
+                                        var website = req.body.website;
+
+                                        db.sequelize.query("UPDATE Korisnik SET website='" + website + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                                            userAutorizacija: true,
+                                            success: true,
+                                            message: 'Korisnik updated successfully'
+                                        }))
+                                    }
+
+                                })
+                            }
+                            catch (e) {
+                                console.log("Backend error: " + e);
+                                res.status(400).json({
+                                    userAutorizacija: true,
+                                    success: false,
+                                    error: e
+                                })
+                            }
+                        }
+                        //Nema privilegiju
+                        else {
+                            res.json({
+                                userAutorizacija: false,
+                                success: false,
+                                message: "Nema privilegiju"
+                            })
+                        }
+                        //error privilegija
+                    }).catch(error => {
+                        console.log(error);
+                        res.json({
+                            userAutorizacija: false,
+                            success: false
+                        })
+                    })
             }
-
-            if (!req.body.website) {
-                return res.status(400).send({
-                    success: 'false',
-                    message: 'website is required',
-                });
-            }
+            //Ne postoji id
             else {
-                var website = req.body.website;
-
-                db.sequelize.query("UPDATE Korisnik SET website='" + website + "' WHERE id=" + student_id).then(info => res.status(201).send({
-                    success: 'true',
-                    message: 'Korisnik updated successfully'
-                }))
+                res.json({
+                    userAutorizacija: false,
+                    success: false,
+                    message: "Ne postoji id"
+                })
             }
-
         })
-    }
-    catch (e) {
-        console.log("Backend error: " + e);
-        res.status(400).json({
-            success: false,
-            error: e
-        })
-    }
+        // error uloga
+        .catch(error => {
+            console.log(error);
+            res.json({
+                userAutorizacija: false,
+                success: false
+            })
+        });
 });
 
 //Koristimo multer za spremanje lokalno slike koja se upload-a za izmjenu
