@@ -795,44 +795,90 @@ const upload = multer({
 
 router.put('/update/foto/:idStudent', upload.single('foto'), (req, res) => {
 
-    try {
-        var student_id = req.params.idStudent;
+    axios.get('http://si2019oscar.herokuapp.com/pretragaId/' + req.params.idStudent + '/dajUlogu')
+        .then(response => {
+            //Ako nije null, ima ulogu
+            if (response.data != null) {
+                axios.get('http://si2019oscar.herokuapp.com/pretragaId/imaPrivilegiju/' + req.params.idStudent + '/editovanje-korisnika')
+                    .then(response => {
+                        //Prosla autorizacija
+                        if (response.data == true) {
+                            try {
+                                var student_id = req.params.idStudent;
 
-        db.Korisnik.findAll({
-            where: {
-                id: student_id
-            },
-            attributes: ['id']
-        }).then(student => {
+                                db.Korisnik.findAll({
+                                    where: {
+                                        id: student_id
+                                    },
+                                    attributes: ['id']
+                                }).then(student => {
 
-            if (student.length == 0) {
-                return res.status(404).send({
-                    success: 'false',
-                    message: 'Korisnik not found'
-                });
+                                    if (student.length == 0) {
+                                        return res.status(404).send({
+                                            userAutorizacija: true,
+                                            success: false,
+                                            message: 'Korisnik not found'
+                                        });
+                                    }
+                                    else {
+
+                                        //Cita spremljenu sliku i konvertuje je tako da bude pogodna za snimanje u bazu kao blob objekat
+                                        var data = fs.readFileSync('uploads/novaSlika');
+                                        var foto = data.toString('base64');
+
+                                        //Konacan upit na bazu koji mijenja sliku
+                                        db.sequelize.query("UPDATE Korisnik SET fotografija='" + foto + "' WHERE id=" + student_id).then(info => res.status(201).send({
+                                            userAutorizacija: true,
+                                            success: true,
+                                            message: 'Korisnik updated successfully',
+                                            fotografija: foto
+                                        }))
+                                    }
+                                })
+                            }
+                            catch (e) {
+                                console.log("Backend error: " + e);
+                                res.status(400).json({
+                                    userAutorizacija: true,
+                                    success: false,
+                                    error: e
+                                })
+                            }
+                        }
+                        //Nema privilegiju
+                        else {
+                            res.json({
+                                userAutorizacija: false,
+                                success: false,
+                                message: "Nema privilegiju"
+                            })
+                        }
+                        //error privilegija
+                    }).catch(error => {
+                        console.log(error);
+                        res.json({
+                            userAutorizacija: false,
+                            success: false
+                        })
+                    })
             }
+            //Ne postoji id
             else {
-
-                //Cita spremljenu sliku i konvertuje je tako da bude pogodna za snimanje u bazu kao blob objekat
-                var data = fs.readFileSync('uploads/novaSlika');
-                var foto = data.toString('base64');
-
-                //Konacan upit na bazu koji mijenja sliku
-                db.sequelize.query("UPDATE Korisnik SET fotografija='" + foto + "' WHERE id=" + student_id).then(info => res.status(201).send({
-                    success: 'true',
-                    message: 'Korisnik updated successfully',
-                    fotografija: foto
-                }))
+                res.json({
+                    userAutorizacija: false,
+                    success: false,
+                    message: "Ne postoji id"
+                })
             }
         })
-    }
-    catch (e) {
-        console.log("Backend error: " + e);
-        res.status(400).json({
-            success: false,
-            error: e
-        })
-    }
+        // error uloga
+        .catch(error => {
+            console.log(error);
+            res.json({
+                userAutorizacija: false,
+                success: false
+            })
+        });
 });
 
 module.exports = router;
