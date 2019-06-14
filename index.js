@@ -53,7 +53,7 @@ app.use('/odsjek', odsjek);
 app.use('/zadace', zadace);
 
 app.get('/', function (req, res) {
-  res.send("Modul deployan");
+  res.send('<img src="https://media.tenor.com/images/bda656ab43b34a34c95ee513db2707c0/tenor.gif" alt="Modul student"');
 })
 
 app.listen(PORT, function () { console.log('server successfully started on port ' + PORT); });
