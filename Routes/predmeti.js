@@ -2,6 +2,7 @@
 var express = require('express');
 var router = express.Router();
 const db = require('../db.js');
+const axios = require('axios')
 
 
 //Pretraga svih predmeta koje student sluša
@@ -41,24 +42,82 @@ router.get('/:idStudent', function (req, res, next) {
 
 router.get('/trenutni/:idStudent', function (req, res, next) {
 
-    var trenutna_id = 0;
-    const student_id = req.params.idStudent;
+    axios.get('http://si2019oscar.herokuapp.com/pretragaId/' + req.params.idStudent + '/dajUlogu')
+        .then(response => {
+            //Ako nije null, ima ulogu
+            if (response.data != null) {
+                axios.get('http://si2019oscar.herokuapp.com/pretragaId/imaPrivilegiju/' + req.params.idStudent + '/pregled-trenutnih-predmeta')
+                    .then(response => {
+                        //Prosla autorizacija
+                        if (response.data == true) {
+                            try {
 
-    //Odredjivanje trenutne godine, jer tražimo predmete koje samo u trenutnoj godini
+                                var trenutna_id = 0;
+                                const student_id = req.params.idStudent;
 
-    db.AkademskaGodina.findOne({
-        where: {
-            aktuelna: "1"
-        },
-        attributes: ['id']
-    }).then(trenutna => {
+                                //Odredjivanje trenutne godine, jer tražimo predmete koje samo u trenutnoj godini
 
-        //Dohvatanje imena trenutnih predmeta koje student sluša
-        db.sequelize.query("SELECT Predmet.naziv FROM Predmet, predmet_student WHERE Predmet.id=predmet_student.idPredmet AND predmet_student.idStudent=" + student_id + " AND idAkademskaGodina=" + trenutna.id).then(([results, metadata]) => res.json({
-            trenutniPredmeti: results
-        }))
+                                db.AkademskaGodina.findOne({
+                                    where: {
+                                        aktuelna: "1"
+                                    },
+                                    attributes: ['id']
+                                }).then(trenutna => {
 
-    })
+                                    //Dohvatanje imena trenutnih predmeta koje student sluša
+                                    db.sequelize.query("SELECT Predmet.naziv FROM Predmet, predmet_student WHERE Predmet.id=predmet_student.idPredmet AND predmet_student.idStudent=" + student_id + " AND idAkademskaGodina=" + trenutna.id).then(([results, metadata]) => res.json({
+                                        userAutorizacija: true,
+                                        success: true,
+                                        trenutniPredmeti: results
+                                    }))
+
+                                })
+
+                            }
+                            catch (e) {
+                                console.log("Backend error: " + e);
+                                res.status(400).json({
+                                    userAutorizacija: true,
+                                    success: false,
+                                    error: e
+                                })
+                            }
+                        }
+                        //Nema privilegiju
+                        else {
+                            res.json({
+                                userAutorizacija: false,
+                                success: false,
+                                message: "Nema privilegiju"
+                            })
+                        }
+                        //error privilegija
+                    }).catch(error => {
+                        console.log(error);
+                        res.json({
+                            userAutorizacija: false,
+                            success: false
+                        })
+                    })
+            }
+            //Ne postoji id
+            else {
+                res.json({
+                    userAutorizacija: false,
+                    success: false,
+                    message: "Ne postoji id"
+                })
+            }
+        })
+        // error uloga
+        .catch(error => {
+            console.log(error);
+            res.json({
+                userAutorizacija: false,
+                success: false
+            })
+        });
+
 
 });
 
@@ -66,78 +125,195 @@ router.get('/trenutni/:idStudent', function (req, res, next) {
 
 router.get('/odslusani/:idStudent', function (req, res, next) {
 
-    var trenutna_id = 0;
-    const student_id = req.params.idStudent;
+    axios.get('http://si2019oscar.herokuapp.com/pretragaId/' + req.params.idStudent + '/dajUlogu')
+        .then(response => {
+            //Ako nije null, ima ulogu
+            if (response.data != null) {
+                axios.get('http://si2019oscar.herokuapp.com/pretragaId/imaPrivilegiju/' + req.params.idStudent + '/pregled-odslusanih-predmeta')
+                    .then(response => {
+                        //Prosla autorizacija
+                        if (response.data == true) {
+                            try {
 
-    //Odredjivanje trenutne godine, jer tražimo sve predmete koji NISU u trenutnoj godini
+                                var trenutna_id = 0;
+                                const student_id = req.params.idStudent;
 
-    db.AkademskaGodina.findOne({
-        where: {
-            aktuelna: "1"
-        },
-        attributes: ['id']
-    }).then(trenutna => {
+                                //Odredjivanje trenutne godine, jer tražimo sve predmete koji NISU u trenutnoj godini
+
+                                db.AkademskaGodina.findOne({
+                                    where: {
+                                        aktuelna: "1"
+                                    },
+                                    attributes: ['id']
+                                }).then(trenutna => {
 
 
-        //Dohvatanje liste imena predmeta koje je student odslušao
-        db.sequelize.query("SELECT Predmet.naziv FROM Predmet, predmet_student WHERE Predmet.id=predmet_student.idPredmet AND predmet_student.idStudent=" + student_id + " AND idAkademskaGodina!=" + trenutna.id).then(([results, metadata]) => res.json({
-            odslusaniPredmeti: results
-        }))
+                                    //Dohvatanje liste imena predmeta koje je student odslušao
+                                    db.sequelize.query("SELECT Predmet.naziv FROM Predmet, predmet_student WHERE Predmet.id=predmet_student.idPredmet AND predmet_student.idStudent=" + student_id + " AND idAkademskaGodina!=" + trenutna.id).then(([results, metadata]) => res.json({
+                                        userAutorizacija: true,
+                                        success: true,
+                                        odslusaniPredmeti: results
+                                    }))
 
-    })
+                                })
+                            }
+                            catch (e) {
+                                console.log("Backend error: " + e);
+                                res.status(400).json({
+                                    userAutorizacija: true,
+                                    success: false,
+                                    error: e
+                                })
+                            }
+                        }
+                        //Nema privilegiju
+                        else {
+                            res.json({
+                                userAutorizacija: false,
+                                success: false,
+                                message: "Nema privilegiju"
+                            })
+                        }
+                        //error privilegija
+                    }).catch(error => {
+                        console.log(error);
+                        res.json({
+                            userAutorizacija: false,
+                            success: false
+                        })
+                    })
+            }
+            //Ne postoji id
+            else {
+                res.json({
+                    userAutorizacija: false,
+                    success: false,
+                    message: "Ne postoji id"
+                })
+            }
+        })
+        // error uloga
+        .catch(error => {
+            console.log(error);
+            res.json({
+                userAutorizacija: false,
+                success: false
+            })
+        });
 
 });
 
 router.get('/brojIspita/:idStudent/sort', function (req, res) {
-    const student_id = req.params.idStudent;
-    var isp = [];
-    var p = false;
-    db.Korisnik.count({
-        where:
-        {
-            id: student_id
-        }
-    }).then(broj => {
-        if (broj == 0) {
-            return res.status(404).send({
-                success: 'false',
-                message: 'Korisnik not found'
-            });
-        }
-        else {
-            db.sequelize.query("SELECT DISTINCT Predmet.naziv FROM Predmet, IspitBodovi, predmet_student, Ispit WHERE  Ispit.idIspit = IspitBodovi.idIspita AND predmet_student.idStudent = " + student_id + " AND predmet_student.idPredmet = Ispit.idPredmet AND IspitBodovi.idKorisnika = " + student_id + " AND Predmet.id = predmet_student.idPredmet ORDER BY Predmet.naziv").then(([ispiti, metadata]) => {
-                if (ispiti.length == 0) {
-                    return res.status(200).send({
-                        succes: 'true',
-                        message: 'Korisnik nije polagao ni jedan ispit',
-                    });
-                }
-                for (var i = 0; i < ispiti.length; i++) {
-                    p = false;
-                    for (var j = 0; j < isp.length; j++) {
-                        if (ispiti[i].naziv == isp[j].naziv) {
-                            isp[j].brojPolaganja++;
-                            p = true;
+
+    axios.get('http://si2019oscar.herokuapp.com/pretragaId/' + req.params.idStudent + '/dajUlogu')
+        .then(response => {
+            //Ako nije null, ima ulogu
+            if (response.data != null) {
+                axios.get('http://si2019oscar.herokuapp.com/pretragaId/imaPrivilegiju/' + req.params.idStudent + '/pregled-statistike')
+                    .then(response => {
+                        //Prosla autorizacija
+                        if (response.data == true) {
+                            try {
+
+                                const student_id = req.params.idStudent;
+                                var isp = [];
+                                var p = false;
+                                db.Korisnik.count({
+                                    where:
+                                    {
+                                        id: student_id
+                                    }
+                                }).then(broj => {
+                                    if (broj == 0) {
+                                        return res.status(404).send({
+                                            userAutorizacija: true,
+                                            success: false,
+                                            message: 'Korisnik not found'
+                                        });
+                                    }
+                                    else {
+                                        db.sequelize.query("SELECT DISTINCT Predmet.naziv FROM Predmet, IspitBodovi, predmet_student, Ispit WHERE  Ispit.idIspit = IspitBodovi.idIspita AND predmet_student.idStudent = " + student_id + " AND predmet_student.idPredmet = Ispit.idPredmet AND IspitBodovi.idKorisnika = " + student_id + " AND Predmet.id = predmet_student.idPredmet ORDER BY Predmet.naziv").then(([ispiti, metadata]) => {
+                                            if (ispiti.length == 0) {
+                                                return res.status(200).send({
+                                                    userAutorizacija: true,
+                                                    succes: true,
+                                                    ispiti: [],
+                                                    message: 'Korisnik nije polagao ni jedan ispit',
+                                                });
+                                            }
+                                            for (var i = 0; i < ispiti.length; i++) {
+                                                p = false;
+                                                for (var j = 0; j < isp.length; j++) {
+                                                    if (ispiti[i].naziv == isp[j].naziv) {
+                                                        isp[j].brojPolaganja++;
+                                                        p = true;
+                                                    }
+                                                }
+                                                if (p == false) {
+                                                    isp.push({
+                                                        naziv: ispiti[i].naziv,
+                                                        brojPolaganja: 1
+                                                    });
+                                                }
+                                                if (i == ispiti.length - 1) {
+                                                    isp.sort((a, b) => { a.brojPolaganja > b.brojPolaganja ? 1 : 0 })
+                                                    return res.status(200).send({
+                                                        userAutorizacija: true,
+                                                        succes: true,
+                                                        message: 'Succesful',
+                                                        ispiti: isp
+                                                    });
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                            catch (e) {
+                                console.log("Backend error: " + e);
+                                res.status(400).json({
+                                    userAutorizacija: true,
+                                    success: false,
+                                    error: e
+                                })
+                            }
                         }
-                    }
-                    if (p == false) {
-                        isp.push({
-                            naziv: ispiti[i].naziv,
-                            brojPolaganja: 1
-                        });
-                    }
-                    if (i == ispiti.length - 1) {
-                        isp.sort((a, b) => { a.brojPolaganja > b.brojPolaganja ? 1 : 0 })
-                        return res.status(200).send({
-                            succes: 'true',
-                            message: 'Succesful',
-                            ispiti: isp
-                        });
-                    }
-                }
-            });
-        }
-    });
+                        //Nema privilegiju
+                        else {
+                            res.json({
+                                userAutorizacija: false,
+                                success: false,
+                                message: "Nema privilegiju"
+                            })
+                        }
+                        //error privilegija
+                    }).catch(error => {
+                        console.log(error);
+                        res.json({
+                            userAutorizacija: false,
+                            success: false
+                        })
+                    })
+            }
+            //Ne postoji id
+            else {
+                res.json({
+                    userAutorizacija: false,
+                    success: false,
+                    message: "Ne postoji id"
+                })
+            }
+        })
+        // error uloga
+        .catch(error => {
+            console.log(error);
+            res.json({
+                userAutorizacija: false,
+                success: false
+            })
+        });
+
+
 });
 
 router.get('/:idOdsjek/:godina/:semestar', function (req, res, next) {
