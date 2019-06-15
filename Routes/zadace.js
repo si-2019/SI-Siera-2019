@@ -4,6 +4,7 @@ const db = require('../db.js');
 const request = require('request');
 const bodyParser = require('body-parser');
 const assert = require('assert');
+const axios = require('axios')
 
 router.use(bodyParser.urlencoded({
     extended: true
@@ -39,7 +40,7 @@ router.get('/:idStudent', function (req, res1) {
                         return res1.status(200).send({
                             succes: 'true',
                             message: 'Succesful',
-                            ZadacePoGodinamaIPredmetima: 'Student jos nema zadaca'
+                            ZadacePoGodinamaIPredmetima: []
                         })
                     }
 
@@ -114,66 +115,113 @@ router.get('/:idStudent', function (req, res1) {
 
 router.get('/:idStudent/sort', function (req, res) {
 
-    try {
+    axios.get('http://si2019oscar.herokuapp.com/pretragaId/' + req.params.idStudent + '/dajUlogu')
+        .then(response => {
+            //Ako nije null, ima ulogu
+            if (response.data != null) {
+                axios.get('http://si2019oscar.herokuapp.com/pretragaId/imaPrivilegiju/' + req.params.idStudent + '/pregled-statistike')
+                    .then(response => {
+                        //Prosla autorizacija
+                        if (response.data == true) {
+                            try {
 
-        const student_id = req.params.idStudent;
-        var predmeti = [];
-        var p = false;
+                                const student_id = req.params.idStudent;
+                                var predmeti = [];
+                                var p = false;
 
-        db.Korisnik.count({
-            where:
-            {
-                id: student_id
-            }
-        }).then(broj => {
-            if (broj == 0) {
-                return res.status(404).send({
-                    success: 'false',
-                    message: 'Korisnik not found'
-                });
-            }
-            else {
-                db.sequelize.query("SELECT Predmet.naziv, student_zadatak.brojOstvarenihBodova FROM student_zadatak, Zadatak, Zadaca, Predmet WHERE student_zadatak.idStudent=" + student_id + " AND Zadatak.idZadatak = student_zadatak.idZadatak AND Zadaca.idZadaca = Zadatak.idZadaca AND Predmet.id = Zadaca.idPredmet").then(([zadace, metadata]) => {
-                    if (zadace.length == 0) {
-                        return res.status(200).send({
-                            succes: 'true',
-                            message: 'Jos nema podataka o zadacama studenta',
-                        });
-                    }
-                    for (var i = 0; i < zadace.length; i++) {
-                        p = false;
-                        for (var j = 0; j < predmeti.length; j++) {
-                            if (zadace[i].naziv == predmeti[j].naziv) {
-                                predmeti[j].brojBodova += zadace[i].brojOstvarenihBodova;
-                                p = true;
+                                db.Korisnik.count({
+                                    where:
+                                    {
+                                        id: student_id
+                                    }
+                                }).then(broj => {
+                                    if (broj == 0) {
+                                        return res.status(404).send({
+                                            userAutorizacija: true,
+                                            success: false,
+                                            message: 'Korisnik not found'
+                                        });
+                                    }
+                                    else {
+                                        db.sequelize.query("SELECT Predmet.naziv, student_zadatak.brojOstvarenihBodova FROM student_zadatak, Zadatak, Zadaca, Predmet WHERE student_zadatak.idStudent=" + student_id + " AND Zadatak.idZadatak = student_zadatak.idZadatak AND Zadaca.idZadaca = Zadatak.idZadaca AND Predmet.id = Zadaca.idPredmet").then(([zadace, metadata]) => {
+                                            if (zadace.length == 0) {
+                                                return res.status(200).send({
+                                                    userAutorizacija: true,
+                                                    succes: true,
+                                                    message: 'Jos nema podataka o zadacama studenta',
+                                                });
+                                            }
+                                            for (var i = 0; i < zadace.length; i++) {
+                                                p = false;
+                                                for (var j = 0; j < predmeti.length; j++) {
+                                                    if (zadace[i].naziv == predmeti[j].naziv) {
+                                                        predmeti[j].brojBodova += zadace[i].brojOstvarenihBodova;
+                                                        p = true;
+                                                    }
+                                                }
+                                                if (p == false) {
+                                                    predmeti.push({
+                                                        naziv: zadace[i].naziv,
+                                                        brojBodova: zadace[i].brojOstvarenihBodova
+                                                    });
+                                                }
+                                                if (i == zadace.length - 1) {
+                                                    predmeti.sort((a, b) => { a.brojBodova > b.brojBodova ? 1 : 0 })
+                                                    return res.status(200).send({
+                                                        userAutorizacija: true,
+                                                        succes: true,
+                                                        message: 'Succesful',
+                                                        ispiti: predmeti
+                                                    });
+                                                }
+                                            }
+
+                                        });
+                                    }
+                                });
+                            }
+                            catch (e) {
+                                res.status(400).json({
+                                    userAutorizacija: true,
+                                    succes: false,
+                                    error: e
+                                })
                             }
                         }
-                        if (p == false) {
-                            predmeti.push({
-                                naziv: zadace[i].naziv,
-                                brojBodova: zadace[i].brojOstvarenihBodova
-                            });
+                        //Nema privilegiju
+                        else {
+                            res.json({
+                                userAutorizacija: false,
+                                success: false,
+                                message: "Nema privilegiju"
+                            })
                         }
-                        if (i == zadace.length - 1) {
-                            predmeti.sort((a, b) => { a.brojBodova > b.brojBodova ? 1 : 0 })
-                            return res.status(200).send({
-                                succes: 'true',
-                                message: 'Succesful',
-                                ispiti: predmeti
-                            });
-                        }
-                    }
-
-                });
+                        //error privilegija
+                    }).catch(error => {
+                        console.log(error);
+                        res.json({
+                            userAutorizacija: false,
+                            success: false
+                        })
+                    })
             }
-        });
-    }
-    catch (e) {
-        res.status(400).json({
-            succes: false,
-            error: e
+            //Ne postoji id
+            else {
+                res.json({
+                    userAutorizacija: false,
+                    success: false,
+                    message: "Ne postoji id"
+                })
+            }
         })
-    }
+        // error uloga
+        .catch(error => {
+            console.log(error);
+            res.json({
+                userAutorizacija: false,
+                success: false
+            })
+        });
 });
 
 

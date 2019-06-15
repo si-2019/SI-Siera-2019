@@ -4,6 +4,7 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const router = express.Router();
 const db = require('../db.js');
+const axios = require('axios')
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
@@ -126,163 +127,276 @@ function kreirajTabeluPredmeta(doc, req) {
 
 router.post('/kreiraj/:idStudent', (req, res) => {
 
-    const doc = new PDFDocument;
-    doc.pipe(fs.createWriteStream(__dirname + '/Ugovori/' + req.params.idStudent + "st.pdf"));
-    kreirajZaglavlje(doc, req);
+    axios.get('http://si2019oscar.herokuapp.com/pretragaId/' + req.params.idStudent + '/dajUlogu')
+        .then(response => {
+            //Ako nije null, ima ulogu
+            if (response.data != null) {
+                axios.get('http://si2019oscar.herokuapp.com/pretragaId/imaPrivilegiju/' + req.params.idStudent + '/kreiranje-ugovora')
+                    .then(response => {
+                        //Prosla autorizacija
+                        if (response.data == true) {
+                            try {
 
-    // Clanovi
+                                const doc = new PDFDocument;
+                                doc.pipe(fs.createWriteStream(__dirname + '/Ugovori/' + req.params.idStudent + "st.pdf"));
+                                kreirajZaglavlje(doc, req);
 
-    var clanovi = [`Student se obavezuje na izvrsavanej svih obaveza predvidjenih planom i programom studija koji upisuje kao i na postivanje svih obaveza predvidjenih pravilima studiranja za ${req.body.ciklus}. ciklus studija na visokoskolskoj ustanovi.`,
-        "Student se dalje obavezuje na postivanje discipline, kucnog reda i cuvanje imovine visokoskolske ustanove u skladu sa njenim pravilnicima. U slucaju materijalne stete, student je obavezan da istu nadoknadi.",
-        "Maticna institucija ce omoguciti studentu da prati i polaze ispite na modulima koje je izabrao/la u tabelama koje su sastavni dio ovog ugovora. Ukoliko izabrani izborni modul ne zadovolji kriterij minimalnog broja kandidata koji su ga izabrali, studentu ce biti ponudjeno da izabere izborne module koji su zadovoljili pomenuti kriterij.",
-        "Svi eventualni sporovi izmedju ugovornih strana ce se rijesavati u duhu medjusobnog uvazavanja i postovanja, a u skladu sa visokim etickim standardima akademske zajednice. U slucaju sporova koji ne mogu biti rijeseni ovim putem, obadvije strane prihvataju nadleznost Suda u Sarajevu."];
+                                // Clanovi
 
-
-
-
-    celija(doc, 50, 250, 512, 50);
-
-    doc.fontSize(11)
-        .font('Times-Bold')
-        .text('Clan 1.', 75, 255, { align: 'center' })
-        .font('Times-Roman')
-        .fontSize(10)
-        .text(`${clanovi[0]}`, 53, 270);
-
-    celija(doc, 50, 330, 512, 50);
-    doc.fontSize(11)
-        .font('Times-Bold')
-        .text('Clan 2.', 75, 335, { align: 'center' })
-        .font('Times-Roman')
-        .fontSize(10)
-        .text(`${clanovi[1]}`, 53, 350);
-
-    celija(doc, 50, 410, 512, 60);
-    doc.fontSize(11)
-        .font('Times-Bold')
-        .text('Clan 3.', 75, 415, { align: 'center' })
-        .font('Times-Roman')
-        .fontSize(10)
-        .text(`${clanovi[2]}`, 53, 430);
-
-    celija(doc, 50, 500, 512, 60);
-    doc.fontSize(11)
-        .font('Times-Bold')
-        .text('Clan 4.', 75, 505, { align: 'center' })
-        .font('Times-Roman')
-        .fontSize(10)
-        .text(`${clanovi[3]}`, 53, 520);
-
-    celija(doc, 50, 580, 256, 30); celija(doc, 306, 580, 256, 30);
-    upisiTextUCelijuBold(doc, "Potpis studenta: ", 55, 590);
-    upisiTextUCeliju(doc, "Datum: ", 311, 590);
-    celija(doc, 50, 630, 512, 15);
-    upisiTextUCelijuBold(doc, "Maticna institucija: potvrdjujemo da je predlozeni program studiranja/ugovor o ucenju prihvacen.", 55, 633);
-    celija(doc, 50, 645, 256, 20); celija(doc, 306, 645, 256, 20);
-    upisiTextUCelijuBold(doc, "Potpis ECTS koordinatora institucije: ", 55, 650);
-    upisiTextUCelijuBold(doc, "Potpis dekana institucije: ", 311, 650);
-    celija(doc, 50, 665, 256, 20); celija(doc, 306, 665, 256, 20);
-    upisiTextUCeliju(doc, "Datum: ", 55, 670);
-    upisiTextUCeliju(doc, "Datum: ", 311, 670);
-
-    doc.addPage();
-
-    kreirajZaglavlje(doc, req);
-    kreirajTabeluPredmeta(doc, req);
-
-    celija(doc, 50, 440, 256, 30); celija(doc, 306, 440, 256, 30);
-    upisiTextUCelijuBold(doc, "Potpis studenta: ", 55, 450);
-    upisiTextUCeliju(doc, "Datum: ", 311, 450);
-    celija(doc, 50, 480, 256, 20); celija(doc, 306, 480, 256, 20);
-    upisiTextUCelijuBold(doc, "Potpis ECTS koordinatora fakulteta/odjela: ", 55, 485);
-    upisiTextUCelijuBold(doc, "Potpis ECTS koordinatora institucije: ", 311, 485);
-    celija(doc, 50, 500, 256, 20); celija(doc, 306, 500, 256, 20);
-    upisiTextUCeliju(doc, "Datum: ", 55, 505);
-    upisiTextUCeliju(doc, "Datum: ", 311, 505);
-
-    celija(doc, 50, 530, 512, 15);
-    doc.font('Times-Bold')
-        .text('Izmjene u prvobitno predlozenom programu studija/ugovoru o ucenju', 75, 533, { align: 'center' })
-
-    var y = 545;
-    for (var i = 0; i < 4; i++) {
-        celija(doc, 50, y, 256, 15); celija(doc, 306, y, 256, 15);
-        if (i == 0) {
-            i
-            upisiTextUCeliju(doc, "Izostavljeni predmeti", 55, y + 3);
-            upisiTextUCeliju(doc, "Dodani predmeti", 311, y + 3);
-        }
-        y += 15;
-    }
-    celija(doc, 50, 620, 256, 30); celija(doc, 306, 620, 256, 30);
-    upisiTextUCelijuBold(doc, "Potpis studenta: ", 55, 630);
-    upisiTextUCeliju(doc, "Datum: ", 311, 630);
-    celija(doc, 50, 660, 512, 15);
-    upisiTextUCelijuBold(doc, "Maticna institucija: potvrdjujemo da je predlozeni program studiranja/ugovor o ucenju prihvacen.", 55, 663);
-    celija(doc, 50, 675, 256, 20); celija(doc, 306, 675, 256, 20);
-    upisiTextUCelijuBold(doc, "Potpis ECTS koordinatora institucije: ", 55, 680);
-    upisiTextUCelijuBold(doc, "Potpis dekana institucije: ", 311, 680);
-    celija(doc, 50, 695, 256, 20); celija(doc, 306, 695, 256, 20);
-    upisiTextUCeliju(doc, "Datum: ", 55, 700);
-    upisiTextUCeliju(doc, "Datum: ", 311, 700);
-    doc.end()
-
-    const student_id = req.params.idStudent;
-
-    db.Ugovori.findAll({
-        where: {
-            idStudent: student_id
-        }
-    }).then(student => {
-
-        var data = fs.readFileSync('Routes/Ugovori/' + student_id + 'st.pdf');
-        var pdf = data.toString('base64');
-
-        var datum = new Date().getFullYear() + '-' + new Date().getMonth() + '-' + new Date().getDate() + ' ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getSeconds();
-
-        if (!student[0]) {
-            db.sequelize.query("INSERT INTO Ugovori (idStudent, ugovor, datumKreiranja) VALUES (" + student_id + ",'" + pdf + "','" + datum + "')").then(info => res.status(200).send({
-                success: 'true',
-                message: 'Ugovor added successfully'
-            }))
-        }
-        else {
-            db.sequelize.query("UPDATE Ugovori SET ugovor='" + pdf + "',datumKreiranja='" + datum + "'  WHERE idStudent=" + student_id).then(info => res.status(201).send({
-                info: info,
-                success: 'true',
-                message: 'Ugovor updated successfully'
-            }))
-
-        }
-    });
+                                var clanovi = [`Student se obavezuje na izvrsavanej svih obaveza predvidjenih planom i programom studija koji upisuje kao i na postivanje svih obaveza predvidjenih pravilima studiranja za ${req.body.ciklus}. ciklus studija na visokoskolskoj ustanovi.`,
+                                    "Student se dalje obavezuje na postivanje discipline, kucnog reda i cuvanje imovine visokoskolske ustanove u skladu sa njenim pravilnicima. U slucaju materijalne stete, student je obavezan da istu nadoknadi.",
+                                    "Maticna institucija ce omoguciti studentu da prati i polaze ispite na modulima koje je izabrao/la u tabelama koje su sastavni dio ovog ugovora. Ukoliko izabrani izborni modul ne zadovolji kriterij minimalnog broja kandidata koji su ga izabrali, studentu ce biti ponudjeno da izabere izborne module koji su zadovoljili pomenuti kriterij.",
+                                    "Svi eventualni sporovi izmedju ugovornih strana ce se rijesavati u duhu medjusobnog uvazavanja i postovanja, a u skladu sa visokim etickim standardima akademske zajednice. U slucaju sporova koji ne mogu biti rijeseni ovim putem, obadvije strane prihvataju nadleznost Suda u Sarajevu."];
 
 
+
+
+                                celija(doc, 50, 250, 512, 50);
+
+                                doc.fontSize(11)
+                                    .font('Times-Bold')
+                                    .text('Clan 1.', 75, 255, { align: 'center' })
+                                    .font('Times-Roman')
+                                    .fontSize(10)
+                                    .text(`${clanovi[0]}`, 53, 270);
+
+                                celija(doc, 50, 330, 512, 50);
+                                doc.fontSize(11)
+                                    .font('Times-Bold')
+                                    .text('Clan 2.', 75, 335, { align: 'center' })
+                                    .font('Times-Roman')
+                                    .fontSize(10)
+                                    .text(`${clanovi[1]}`, 53, 350);
+
+                                celija(doc, 50, 410, 512, 60);
+                                doc.fontSize(11)
+                                    .font('Times-Bold')
+                                    .text('Clan 3.', 75, 415, { align: 'center' })
+                                    .font('Times-Roman')
+                                    .fontSize(10)
+                                    .text(`${clanovi[2]}`, 53, 430);
+
+                                celija(doc, 50, 500, 512, 60);
+                                doc.fontSize(11)
+                                    .font('Times-Bold')
+                                    .text('Clan 4.', 75, 505, { align: 'center' })
+                                    .font('Times-Roman')
+                                    .fontSize(10)
+                                    .text(`${clanovi[3]}`, 53, 520);
+
+                                celija(doc, 50, 580, 256, 30); celija(doc, 306, 580, 256, 30);
+                                upisiTextUCelijuBold(doc, "Potpis studenta: ", 55, 590);
+                                upisiTextUCeliju(doc, "Datum: ", 311, 590);
+                                celija(doc, 50, 630, 512, 15);
+                                upisiTextUCelijuBold(doc, "Maticna institucija: potvrdjujemo da je predlozeni program studiranja/ugovor o ucenju prihvacen.", 55, 633);
+                                celija(doc, 50, 645, 256, 20); celija(doc, 306, 645, 256, 20);
+                                upisiTextUCelijuBold(doc, "Potpis ECTS koordinatora institucije: ", 55, 650);
+                                upisiTextUCelijuBold(doc, "Potpis dekana institucije: ", 311, 650);
+                                celija(doc, 50, 665, 256, 20); celija(doc, 306, 665, 256, 20);
+                                upisiTextUCeliju(doc, "Datum: ", 55, 670);
+                                upisiTextUCeliju(doc, "Datum: ", 311, 670);
+
+                                doc.addPage();
+
+                                kreirajZaglavlje(doc, req);
+                                kreirajTabeluPredmeta(doc, req);
+
+                                celija(doc, 50, 440, 256, 30); celija(doc, 306, 440, 256, 30);
+                                upisiTextUCelijuBold(doc, "Potpis studenta: ", 55, 450);
+                                upisiTextUCeliju(doc, "Datum: ", 311, 450);
+                                celija(doc, 50, 480, 256, 20); celija(doc, 306, 480, 256, 20);
+                                upisiTextUCelijuBold(doc, "Potpis ECTS koordinatora fakulteta/odjela: ", 55, 485);
+                                upisiTextUCelijuBold(doc, "Potpis ECTS koordinatora institucije: ", 311, 485);
+                                celija(doc, 50, 500, 256, 20); celija(doc, 306, 500, 256, 20);
+                                upisiTextUCeliju(doc, "Datum: ", 55, 505);
+                                upisiTextUCeliju(doc, "Datum: ", 311, 505);
+
+                                celija(doc, 50, 530, 512, 15);
+                                doc.font('Times-Bold')
+                                    .text('Izmjene u prvobitno predlozenom programu studija/ugovoru o ucenju', 75, 533, { align: 'center' })
+
+                                var y = 545;
+                                for (var i = 0; i < 4; i++) {
+                                    celija(doc, 50, y, 256, 15); celija(doc, 306, y, 256, 15);
+                                    if (i == 0) {
+                                        i
+                                        upisiTextUCeliju(doc, "Izostavljeni predmeti", 55, y + 3);
+                                        upisiTextUCeliju(doc, "Dodani predmeti", 311, y + 3);
+                                    }
+                                    y += 15;
+                                }
+                                celija(doc, 50, 620, 256, 30); celija(doc, 306, 620, 256, 30);
+                                upisiTextUCelijuBold(doc, "Potpis studenta: ", 55, 630);
+                                upisiTextUCeliju(doc, "Datum: ", 311, 630);
+                                celija(doc, 50, 660, 512, 15);
+                                upisiTextUCelijuBold(doc, "Maticna institucija: potvrdjujemo da je predlozeni program studiranja/ugovor o ucenju prihvacen.", 55, 663);
+                                celija(doc, 50, 675, 256, 20); celija(doc, 306, 675, 256, 20);
+                                upisiTextUCelijuBold(doc, "Potpis ECTS koordinatora institucije: ", 55, 680);
+                                upisiTextUCelijuBold(doc, "Potpis dekana institucije: ", 311, 680);
+                                celija(doc, 50, 695, 256, 20); celija(doc, 306, 695, 256, 20);
+                                upisiTextUCeliju(doc, "Datum: ", 55, 700);
+                                upisiTextUCeliju(doc, "Datum: ", 311, 700);
+                                doc.end()
+
+                                const student_id = req.params.idStudent;
+
+                                db.Ugovori.findAll({
+                                    where: {
+                                        idStudent: student_id
+                                    }
+                                }).then(student => {
+
+                                    var data = fs.readFileSync('Routes/Ugovori/' + student_id + 'st.pdf');
+                                    var pdf = data.toString('base64');
+
+                                    var datum = new Date().getFullYear() + '-' + new Date().getMonth() + '-' + new Date().getDate() + ' ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getSeconds();
+
+                                    if (!student[0]) {
+                                        db.sequelize.query("INSERT INTO Ugovori (idStudent, ugovor, datumKreiranja) VALUES (" + student_id + ",'" + pdf + "','" + datum + "')").then(info => res.status(200).send({
+                                            success: 'true',
+                                            message: 'Ugovor added successfully'
+                                        }))
+                                    }
+                                    else {
+                                        db.sequelize.query("UPDATE Ugovori SET ugovor='" + pdf + "',datumKreiranja='" + datum + "'  WHERE idStudent=" + student_id).then(info => res.status(201).send({
+                                            info: info,
+                                            userAutorizacija: true,
+                                            success: true,
+                                            message: 'Ugovor updated successfully'
+                                        }))
+
+                                    }
+                                });
+                            }
+                            catch (e) {
+                                console.log("Backend error: " + e);
+                                res.status(400).json({
+                                    userAutorizacija: true,
+                                    success: false,
+                                    error: e
+                                })
+                            }
+                        }
+                        //Nema privilegiju
+                        else {
+                            res.json({
+                                userAutorizacija: false,
+                                success: false,
+                                message: "Nema privilegiju"
+                            })
+                        }
+                        //error privilegija
+                    }).catch(error => {
+                        console.log(error);
+                        res.json({
+                            userAutorizacija: false,
+                            success: false
+                        })
+                    })
+            }
+            //Ne postoji id
+            else {
+                res.json({
+                    userAutorizacija: false,
+                    success: false,
+                    message: "Ne postoji id"
+                })
+            }
+        })
+        // error uloga
+        .catch(error => {
+            console.log(error);
+            res.json({
+                userAutorizacija: false,
+                success: false
+            })
+        });
 });
 
 router.get('/url/:idStudent', (req, res) => {
 
-    const student_id = req.params.idStudent;
+    axios.get('http://si2019oscar.herokuapp.com/pretragaId/' + req.params.idStudent + '/dajUlogu')
+        .then(response => {
+            //Ako nije null, ima ulogu
+            if (response.data != null) {
+                axios.get('http://si2019oscar.herokuapp.com/pretragaId/imaPrivilegiju/' + req.params.idStudent + '/pregled-ugovora')
+                    .then(response => {
+                        //Prosla autorizacija
+                        if (response.data == true) {
+                            try {
 
-    db.Ugovori.findAll({
-        where: {
-            idStudent: student_id
-        }
-    }).then(ugovor => {
+                                const student_id = req.params.idStudent;
 
-        if (!ugovor[0]) {
-            res.send({
-                link: null
-            })
-        }
-        else {
-            var ug = ugovor[0].ugovor;
-            var url = "data:application/pdf;base64," + ug;
-            res.send(
-                {
-                    link: url
+                                db.Ugovori.findAll({
+                                    where: {
+                                        idStudent: student_id
+                                    }
+                                }).then(ugovor => {
+
+                                    if (!ugovor[0]) {
+                                        res.send({
+                                            userAutorizacija: true,
+                                            success: true,
+                                            link: null
+                                        })
+                                    }
+                                    else {
+                                        var ug = ugovor[0].ugovor;
+                                        var url = "data:application/pdf;base64," + ug;
+                                        res.send(
+                                            {
+                                                userAutorizacija: true,
+                                                success: true,
+                                                link: url
+                                            })
+                                    }
+                                })
+                            }
+                            catch (e) {
+                                console.log("Backend error: " + e);
+                                res.status(400).json({
+                                    userAutorizacija: true,
+                                    success: false,
+                                    error: e
+                                })
+                            }
+                        }
+                        //Nema privilegiju
+                        else {
+                            res.json({
+                                userAutorizacija: false,
+                                success: false,
+                                message: "Nema privilegiju"
+                            })
+                        }
+                        //error privilegija
+                    }).catch(error => {
+                        console.log(error);
+                        res.json({
+                            userAutorizacija: false,
+                            success: false
+                        })
+                    })
+            }
+            //Ne postoji id
+            else {
+                res.json({
+                    userAutorizacija: false,
+                    success: false,
+                    message: "Ne postoji id"
                 })
-        }
-    })
+            }
+        })
+        // error uloga
+        .catch(error => {
+            console.log(error);
+            res.json({
+                userAutorizacija: false,
+                success: false
+            })
+        });
+
+
 });
 
 module.exports = router;
